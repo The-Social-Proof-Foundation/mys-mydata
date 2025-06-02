@@ -1,5 +1,5 @@
 # Multi-stage build for key-server
-FROM rust:1.75 as builder
+FROM rust:1.82 as builder
 
 # Set the working directory
 WORKDIR /app
