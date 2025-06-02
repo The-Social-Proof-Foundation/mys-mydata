@@ -1,0 +1,16 @@
+[build]
+builder = "dockerfile"
+dockerfile = "Dockerfile"
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
+
+[env]
+# These will need to be set in Railway dashboard as secrets
+# MASTER_KEY = ""
+# KEY_SERVER_OBJECT_ID = ""
+# NETWORK = "testnet"
+PORT = "8080" 
