@@ -10,7 +10,7 @@ const { networkConfig, useNetworkVariable, useNetworkVariables } = createNetwork
     url: getFullnodeUrl('testnet'),
     variables: {
       packageId: TESTNET_PACKAGE_ID,
-      gqlClient: 'https://mys-testnet.mysocial.network/graphql',
+      gqlClient: 'https://mys-graphql-rpc-testnet.up.railway.app/graphql',
     },
   },
 });

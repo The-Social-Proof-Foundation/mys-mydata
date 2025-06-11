@@ -620,14 +620,55 @@ async fn add_response_headers(mut response: Response) -> Response {
     response
 }
 
+/// Parse MASTER_KEY with proper format detection and validation
+fn parse_master_key(master_key: &str) -> Result<Vec<u8>> {
+    let trimmed_key = master_key.trim();
+    
+    // Determine format based on length and character composition
+    let bytes = if trimmed_key.len() == 64 && trimmed_key.chars().all(|c| c.is_ascii_hexdigit()) {
+        // Hex format: exactly 64 hex characters = 32 bytes
+        Hex::decode(trimmed_key)
+            .map_err(|e| anyhow::anyhow!("Failed to decode hex MASTER_KEY: {}", e))?
+    } else if trimmed_key.len() == 44 && is_valid_base64(trimmed_key) {
+        // Base64 format: 44 characters for 32 bytes (32 * 4/3 = 42.67, rounded up to 44 with padding)
+        Base64::decode(trimmed_key)
+            .map_err(|e| anyhow::anyhow!("Failed to decode base64 MASTER_KEY: {}", e))?
+    } else {
+        return Err(anyhow::anyhow!(
+            "Invalid MASTER_KEY format. Expected either:\n\
+             - 64-character hex string (e.g., '457ad74b24daa9795a7d520ddcc1d90bc237f3c2fff0b533f2143d89bd39d35e')\n\
+             - 44-character base64 string for 32 bytes\n\
+             Got {} characters: '{}'", 
+            trimmed_key.len(), 
+            trimmed_key
+        ));
+    };
+    
+    // Validate the decoded key is exactly 32 bytes (required for BLS12-381 scalar)
+    if bytes.len() != 32 {
+        return Err(anyhow::anyhow!(
+            "MASTER_KEY must decode to exactly 32 bytes for BLS12-381 scalar field. \
+             Got {} bytes from input: '{}'", 
+            bytes.len(), 
+            trimmed_key
+        ));
+    }
+    
+    Ok(bytes)
+}
+
+/// Check if a string is valid base64 (basic validation)
+fn is_valid_base64(s: &str) -> bool {
+    s.chars().all(|c| c.is_alphanumeric() || c == '+' || c == '/' || c == '=')
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
     let master_key = env::var("MASTER_KEY").expect("MASTER_KEY must be set");
-    let bytes = if Base64::decode(&master_key).is_ok() {
-        Base64::decode(&master_key).expect("MASTER_KEY should be base64 encoded")
-    } else {
-        Hex::decode(&master_key).expect("MASTER_KEY should be hex encoded")
-    };
+    
+    // Parse master key with proper format detection
+    let bytes = parse_master_key(&master_key)?;
+    
     let object_id = env::var("KEY_SERVER_OBJECT_ID").expect("KEY_SERVER_OBJECT_ID must be set");
     let network = env::var("NETWORK")
         .map(|n| Network::from_str(&n))
