@@ -34,9 +34,9 @@ pub enum Network {
 impl Network {
     pub fn node_url(&self) -> String {
         match self {
-            Network::Devnet => "https://fullnode.devnet.mysocial.network:443".into(),
-            Network::Testnet => "https://fullnode.testnet.mysocial.network:443".into(),
-            Network::Mainnet => "https://fullnode.mainnet.mysocial.network:443".into(),
+            Network::Devnet => "http://fullnode.devnet.mysocial.network:8082".into(),
+            Network::Testnet => "http://fullnode.testnet.mysocial.network:8082".into(),
+            Network::Mainnet => "http://fullnode.mainnet.mysocial.network:8082".into(),
             Network::Custom { node_url, .. } => node_url.clone(),
             #[cfg(test)]
             Network::TestCluster => panic!(), // Currently not used, but can be found from cluster.rpc_url() if needed
@@ -46,7 +46,7 @@ impl Network {
     pub fn graphql_url(&self) -> String {
         match self {
             Network::Devnet => "https://devnet.mysocial.network/graphql".into(),
-            Network::Testnet => "https://testnet.mysocial.network/graphql".into(),
+            Network::Testnet => "https://mys-graphql-rpc-testnet.up.railway.app/graphql".into(),
             Network::Mainnet => "https://mainnet.mysocial.network/graphql".into(),
             Network::Custom { graphql_url, .. } => graphql_url.clone(),
             #[cfg(test)]

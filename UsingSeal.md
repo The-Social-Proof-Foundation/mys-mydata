@@ -196,7 +196,7 @@ Use the `seal-cli` tool to generate a new master key using `cargo run --bin seal
 Key servers can be registered onchain to enable discoverability. To register a key server, call the `create_and_transfer_v1` function in the `seal::key_server` module. For example:
 
 ```shell
-mys client call --function create_and_transfer_v1 --module key_server --package 0x62c79dfeb0a2ca8c308a56bde530ccf3846535e1623949d45c90d23128afff52 --args mysten-dev-1 https://seal-key-server-testnet-1.mysocial.network 0 0xa023acbf600401017ee17bf918106ea9911914ca017aa3ab9ab5c64beb9bb5236fd9d4d5b5645dc3bc0d4f732ed04fc60d14b9f37987fe5eeb4db07fc0982904ce1ed0b07607ae2e99086e141f6c6a1df6def5f5d434ca7c09856a3750c92969 --gas-budget 10000000
+myso client call --function create_and_transfer_v1 --module key_server --package 0x62c79dfeb0a2ca8c308a56bde530ccf3846535e1623949d45c90d23128afff52 --args mysten-dev-1 https://seal-key-server-testnet-1.mysocial.network 0 0xa023acbf600401017ee17bf918106ea9911914ca017aa3ab9ab5c64beb9bb5236fd9d4d5b5645dc3bc0d4f732ed04fc60d14b9f37987fe5eeb4db07fc0982904ce1ed0b07607ae2e99086e141f6c6a1df6def5f5d434ca7c09856a3750c92969 --gas-budget 10000000
 ```
 
 Run the server using `cargo run --bin key-server` with environment variables:
