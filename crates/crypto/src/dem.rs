@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -161,7 +160,7 @@ mod tests {
     use crate::{utils::generate_random_bytes, KEY_SIZE};
     use rand::thread_rng;
 
-    const TEST_MSG: &[u8] = b"The difference between a Miracle and a Fact is exactly the difference between a mermaid and a seal.";
+    const TEST_MSG: &[u8] = b"The difference between a Miracle and a Fact is exactly the difference between a mermaid and a mydata.";
     const TEST_AAD: &[u8] = b"Mark Twain";
 
     #[test]

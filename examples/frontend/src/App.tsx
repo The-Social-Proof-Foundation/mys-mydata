@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -65,8 +64,8 @@ function App() {
   return (
     <Container>
       <Flex position="sticky" px="4" py="2" justify="between">
-        <h1 className="text-4xl font-bold m-4 mb-8">Seal Example Apps</h1>
-        {/* <p>TODO: add seal logo</p> */}
+        <h1 className="text-4xl font-bold m-4 mb-8">MyData Example Apps</h1>
+        {/* <p>TODO: add mydata logo</p> */}
         <Box>
           <ConnectButton />
         </Box>
@@ -74,7 +73,7 @@ function App() {
       <Card style={{ marginBottom: '2rem' }}>
         <p>
           1. Code is available{' '}
-          <a href="https://github.com/MystenLabs/seal/tree/main/examples">here</a>.
+          <a href="https://github.com/MystenLabs/mydata/tree/main/examples">here</a>.
         </p>
         <p>
           2. These examples are for Testnet only. Make sure you wallet is set to Testnet and has

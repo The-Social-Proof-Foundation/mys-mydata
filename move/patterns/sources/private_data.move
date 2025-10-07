@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -60,7 +59,7 @@ fun check_policy(id: vector<u8>, e: &PrivateData): bool {
     key_id == id
 }
 
-entry fun seal_approve(id: vector<u8>, e: &PrivateData) {
+entry fun mydata_approve(id: vector<u8>, e: &PrivateData) {
     assert!(check_policy(id, e), ENoAccess);
 }
 

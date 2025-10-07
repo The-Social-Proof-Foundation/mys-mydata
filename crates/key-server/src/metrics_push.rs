@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -43,7 +42,7 @@ pub struct MetricPayload {
     pub buf: Vec<u8>,
 }
 
-/// Responsible for sending data to seal-proxy, used within the async scope of
+/// Responsible for sending data to mydata-proxy, used within the async scope of
 pub async fn push_metrics(
     config: MetricsPushConfig,
     client: &reqwest::Client,

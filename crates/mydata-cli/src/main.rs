@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -8,7 +7,7 @@ use crypto::ibe::{generate_seed, SEED_LENGTH};
 use crypto::prefixed_hex::PrefixedHex;
 use crypto::EncryptionInput::Plain;
 use crypto::{
-    create_full_id, ibe, seal_decrypt, seal_encrypt, Ciphertext, EncryptedObject, EncryptionInput,
+    create_full_id, ibe, mydata_decrypt, mydata_encrypt, Ciphertext, EncryptedObject, EncryptionInput,
     IBEEncryptions, IBEPublicKeys, IBEUserSecretKeys, ObjectID,
 };
 use fastcrypto::encoding::{Encoding, Hex};
@@ -17,8 +16,8 @@ use fastcrypto::groups::bls12381::{G1Element, G2Element, Scalar};
 use fastcrypto::serde_helpers::ToFromByteArray;
 use rand::thread_rng;
 use reqwest::Body;
-use seal_sdk::types::{FetchKeyRequest, FetchKeyResponse};
-use seal_sdk::IBEPublicKey;
+use mydata_sdk::types::{FetchKeyRequest, FetchKeyResponse};
+use mydata_sdk::IBEPublicKey;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
@@ -224,7 +223,7 @@ enum Command {
         #[arg(long, value_parser = parse_serializable::<G2Element, DefaultEncoding>)]
         public_key: G2Element,
     },
-    /// Derive a key using Seal.
+    /// Derive a key using MyData.
     /// The key is derived from the ID using an IBKEM, Boneh-Franklin over BLS12381.
     /// This outputs both the encrypted object as a hex-encoded BCS serialization, which can be shared publicly, and the derived symmetric key which should be kept privately.
     Plain {
@@ -244,7 +243,7 @@ enum Command {
         #[arg(num_args = 1.., last = true)]
         object_ids: Vec<ObjectID>,
     },
-    /// Encrypt a message using Seal.
+    /// Encrypt a message using MyData.
     /// The key is derived from the ID using an IBKEM, Boneh-Franklin over BLS12381, and the message is encrypted using AES-256-GCM.
     /// This outputs both the encrypted object as a hex-encoded BCS serialization, which can be shared publicly, and the derived symmetric key which should be kept privately.
     EncryptAes {
@@ -270,7 +269,7 @@ enum Command {
         #[arg(num_args = 1.., last = true)]
         object_ids: Vec<ObjectID>,
     },
-    /// Encrypt a message using Seal.
+    /// Encrypt a message using MyData.
     /// The key is derived from the ID using an IBKEM, Boneh-Franklin over BLS12381, and the message is encrypted using counter-mode with hmac-sha3-256 as a PRF.
     /// This outputs both the encrypted object as a hex-encoded BCS serialization, which can be shared publicly, and the derived symmetric key which should be kept privately.
     EncryptHmac {
@@ -296,7 +295,7 @@ enum Command {
         #[arg(num_args = 1.., last = true)]
         object_ids: Vec<ObjectID>,
     },
-    /// Decrypt a Seal encrypted object.
+    /// Decrypt a MyData encrypted object.
     /// In case the encrypted object holds a message, this is returned.
     /// If Plain was used, the derived encryption key is returned.
     Decrypt {
@@ -310,7 +309,7 @@ enum Command {
         #[arg(num_args = 1.., last = true)]
         object_ids: Vec<ObjectID>,
     },
-    /// Parse a Seal encrypted object.
+    /// Parse a MyData encrypted object.
     /// This outputs the parts of the parsed encrypted object as a hex-encoded BCS serialization.
     Parse {
         /// The encrypted object as hex-encoded bytes
@@ -325,7 +324,7 @@ enum Command {
         #[arg(long)]
         key: EncodedByteArray<KEY_LENGTH>,
     },
-    /// Encrypt a secret's Hex encoded bytes using Seal. This uses the public fullnode for
+    /// Encrypt a secret's Hex encoded bytes using MyData. This uses the public fullnode for
     /// retrieval of key servers' public keys for the given network.
     Encrypt {
         /// The secrets to encrypt.
@@ -336,7 +335,7 @@ enum Command {
         #[arg(long, value_delimiter = ',')]
         ids: Vec<EncodedBytes>,
 
-        /// Package ID that defines seal policy.
+        /// Package ID that defines mydata policy.
         #[arg(short = 'p', long)]
         package_id: ObjectID,
 
@@ -352,7 +351,7 @@ enum Command {
         #[arg(short = 'n', long, default_value = "testnet")]
         network: String,
     },
-    /// Fetch keys from Seal servers using encoded fetch keys request.
+    /// Fetch keys from MyData servers using encoded fetch keys request.
     FetchKeys {
         /// Hex encoded fetch keys request.
         #[arg(long)]
@@ -427,7 +426,7 @@ async fn main() -> FastCryptoResult<()> {
             threshold,
             public_keys,
             object_ids,
-        } => EncryptionOutput(seal_encrypt(
+        } => EncryptionOutput(mydata_encrypt(
             package_id,
             id.0,
             object_ids,
@@ -444,7 +443,7 @@ async fn main() -> FastCryptoResult<()> {
             threshold,
             public_keys,
             object_ids,
-        } => EncryptionOutput(seal_encrypt(
+        } => EncryptionOutput(mydata_encrypt(
             package_id,
             id.0,
             object_ids,
@@ -464,7 +463,7 @@ async fn main() -> FastCryptoResult<()> {
             threshold,
             public_keys,
             object_ids,
-        } => EncryptionOutput(seal_encrypt(
+        } => EncryptionOutput(mydata_encrypt(
             package_id,
             id.0,
             object_ids,
@@ -480,7 +479,7 @@ async fn main() -> FastCryptoResult<()> {
             encrypted_object,
             secret_keys,
             object_ids,
-        } => DecryptionOutput(seal_decrypt(
+        } => DecryptionOutput(mydata_decrypt(
             &encrypted_object, // TODO
             &IBEUserSecretKeys::BonehFranklinBLS12381(
                 object_ids.into_iter().zip(secret_keys).collect(),
@@ -544,7 +543,7 @@ async fn main() -> FastCryptoResult<()> {
             })?);
             let mut encrypted_objects = Vec::new();
             for (id, secret) in ids.into_iter().zip(secrets.into_iter()) {
-                let (encrypted_object, _) = seal_encrypt(
+                let (encrypted_object, _) = mydata_encrypt(
                     package_id,
                     id.0,
                     key_server_ids.clone(),
@@ -577,8 +576,8 @@ async fn main() -> FastCryptoResult<()> {
                 ))
             })?;
 
-            // Fetch keys from key server urls and collect service id and its seal responses.
-            let mut seal_responses = Vec::new();
+            // Fetch keys from key server urls and collect service id and its mydata responses.
+            let mut mydata_responses = Vec::new();
             let client = reqwest::Client::new();
             for server in &fetch_key_server_urls(&key_server_ids, &network)
                 .await
@@ -607,7 +606,7 @@ async fn main() -> FastCryptoResult<()> {
                             let response: FetchKeyResponse =
                                 serde_json::from_slice(&response_bytes)
                                     .expect("Failed to deserialize response");
-                            seal_responses.push((server.object_id, response));
+                            mydata_responses.push((server.object_id, response));
                             println!("\n Success {}", server.name);
                         } else {
                             let error_text = response
@@ -622,24 +621,24 @@ async fn main() -> FastCryptoResult<()> {
                     }
                 }
 
-                if seal_responses.len() >= threshold as usize {
+                if mydata_responses.len() >= threshold as usize {
                     println!("Reached threshold of {} responses", threshold);
                     break;
                 }
             }
 
-            if seal_responses.len() < threshold as usize {
+            if mydata_responses.len() < threshold as usize {
                 return Err(FastCryptoError::GeneralError(format!(
                     "Failed to get enough responses: {} < {}",
-                    seal_responses.len(),
+                    mydata_responses.len(),
                     threshold
                 )));
             }
 
             format!(
-                "\n {:?} Encoded seal responses: {:?}",
-                seal_responses.len(),
-                Hex::encode(bcs::to_bytes(&seal_responses).expect("should not fail"))
+                "\n {:?} Encoded mydata responses: {:?}",
+                mydata_responses.len(),
+                Hex::encode(bcs::to_bytes(&mydata_responses).expect("should not fail"))
             )
         }
     };
@@ -825,7 +824,7 @@ mod tests {
         assert_eq!(key_servers.len(), 1);
         assert_eq!(
             key_servers[0].url,
-            "https://seal-key-server-testnet-1.mystenlabs.com"
+            "https://mydata-key-server-testnet-1.mystenlabs.com"
         );
         // Verify public key exists
         assert!(!key_servers[0].public_key.is_empty());

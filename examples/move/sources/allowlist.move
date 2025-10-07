@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -83,7 +82,7 @@ fun approve_internal(caller: address, id: vector<u8>, allowlist: &Allowlist): bo
     allowlist.list.contains(&caller)
 }
 
-entry fun seal_approve(id: vector<u8>, allowlist: &Allowlist, ctx: &TxContext) {
+entry fun mydata_approve(id: vector<u8>, allowlist: &Allowlist, ctx: &TxContext) {
     assert!(approve_internal(ctx.sender(), id, allowlist), ENoAccess);
 }
 

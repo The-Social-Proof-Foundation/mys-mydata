@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 import { getFullnodeUrl } from '@socialproof/mys/client';
@@ -10,7 +9,7 @@ const { networkConfig, useNetworkVariable, useNetworkVariables } = createNetwork
     url: getFullnodeUrl('testnet'),
     variables: {
       packageId: TESTNET_PACKAGE_ID,
-      mvrName: '@pkg/seal-demo-1234',
+      mvrName: '@pkg/mydata-demo-1234',
     },
   },
 });

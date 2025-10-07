@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -21,7 +20,7 @@ const EWrongVersion: u64 = 5;
 
 const VERSION: u64 = 1;
 
-// Manage the version of the package for which seal_approve functions should be evaluated with.
+// Manage the version of the package for which mydata_approve functions should be evaluated with.
 public struct PackageVersion has key {
     id: UID,
     version: u64,
@@ -160,7 +159,7 @@ fun check_policy(
     true
 }
 
-entry fun seal_approve(
+entry fun mydata_approve(
     id: vector<u8>,
     pkg_version: &PackageVersion,
     sub: &Subscription,

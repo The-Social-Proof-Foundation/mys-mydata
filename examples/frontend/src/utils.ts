@@ -1,8 +1,7 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
-import { SealClient, SessionKey, NoAccessError, EncryptedObject } from '@mysten/seal';
+import { MyDataClient, SessionKey, NoAccessError, EncryptedObject } from '@mysten/mydata';
 import { MysClient } from '@socialproof/mys/client';
 import { Transaction } from '@socialproof/mys/transactions';
 import React from 'react';
@@ -13,7 +12,7 @@ export const downloadAndDecrypt = async (
   blobIds: string[],
   sessionKey: SessionKey,
   suiClient: MysClient,
-  sealClient: SealClient,
+  mydataClient: MyDataClient,
   moveCallConstructor: (tx: Transaction, id: string) => void,
   setError: (error: string | null) => void,
   setDecryptedFileUrls: (urls: string[]) => void,
@@ -69,7 +68,7 @@ export const downloadAndDecrypt = async (
     ids.forEach((id) => moveCallConstructor(tx, id));
     const txBytes = await tx.build({ client: suiClient, onlyTransactionKind: true });
     try {
-      await sealClient.fetchKeys({ ids, txBytes, sessionKey, threshold: 2 });
+      await mydataClient.fetchKeys({ ids, txBytes, sessionKey, threshold: 2 });
     } catch (err) {
       console.log(err);
       const errorMsg =
@@ -91,7 +90,7 @@ export const downloadAndDecrypt = async (
     const txBytes = await tx.build({ client: suiClient, onlyTransactionKind: true });
     try {
       // Note that all keys are fetched above, so this only local decryption is done
-      const decryptedFile = await sealClient.decrypt({
+      const decryptedFile = await mydataClient.decrypt({
         data: new Uint8Array(encryptedData),
         sessionKey,
         txBytes,

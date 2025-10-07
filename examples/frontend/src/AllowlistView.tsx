@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 import { useEffect, useState } from 'react';
@@ -9,10 +8,10 @@ import { fromHex } from '@socialproof/mys/utils';
 import { Transaction } from '@socialproof/mys/transactions';
 import {
   KeyServerConfig,
-  SealClient,
+  MyDataClient,
   SessionKey,
   type ExportedSessionKey
-} from '@mysten/seal';
+} from '@mysten/mydata';
 import { useParams } from 'react-router-dom';
 import { downloadAndDecrypt, getObjectExplorerLink, MoveCallConstructor } from './utils';
 import { set, get } from 'idb-keyval';
@@ -28,7 +27,7 @@ export interface FeedData {
 function constructMoveCall(packageId: string, allowlistId: string): MoveCallConstructor {
   return (tx: Transaction, id: string) => {
     tx.moveCall({
-      target: `${packageId}::allowlist::seal_approve`,
+      target: `${packageId}::allowlist::mydata_approve`,
       arguments: [tx.pure.vector('u8', fromHex(id)), tx.object(allowlistId)],
     });
   };
@@ -37,7 +36,7 @@ function constructMoveCall(packageId: string, allowlistId: string): MoveCallCons
 const Feeds: React.FC<{ suiAddress: string }> = ({ suiAddress }) => {
   const suiClient = useMysClient();
   const serverObjectIds = ["0x73d05d62c18d9374e3ea529e8e0ed6161da1a141a94d3f76ae3fe4e99356db75", "0xf5d14a81a982144ae441cd7d64b09027f116a468bd36e7eca494f750591623c8"];
-  const client = new SealClient({
+  const client = new MyDataClient({
     suiClient,
     serverConfigs: serverObjectIds.map((id) => ({
       objectId: id,

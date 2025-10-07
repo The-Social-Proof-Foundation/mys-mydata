@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -141,7 +140,7 @@ pub struct KeyServerOptions {
     #[serde(default)]
     pub rpc_config: RpcConfig,
 
-    /// Optional configuration for pushing metrics to an external endpoint (e.g., seal-proxy).
+    /// Optional configuration for pushing metrics to an external endpoint (e.g., mydata-proxy).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub metrics_push_config: Option<MetricsPushConfig>,
 }

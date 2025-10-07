@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 import React, { useState } from 'react';
@@ -6,7 +5,7 @@ import { Transaction } from '@socialproof/mys/transactions';
 import { useNetworkVariable } from './networkConfig';
 import { useSignAndExecuteTransaction, useMysClient } from '@socialproof/dapp-kit';
 import { Button, Card, Flex, Spinner, Text } from '@radix-ui/themes';
-import { SealClient } from '@mysten/seal';
+import { MyDataClient } from '@mysten/mydata';
 import { fromHex, toHex } from '@socialproof/mys/utils';
 
 export type Data = {
@@ -47,7 +46,7 @@ export function WalrusUpload({ policyObject, cap_id, moduleName }: WalrusUploadP
   const packageId = useNetworkVariable('packageId');
   const suiClient = useMysClient();
   const serverObjectIds = ["0x73d05d62c18d9374e3ea529e8e0ed6161da1a141a94d3f76ae3fe4e99356db75", "0xf5d14a81a982144ae441cd7d64b09027f116a468bd36e7eca494f750591623c8"];
-  const client = new SealClient({
+  const client = new MyDataClient({
     suiClient,
     serverConfigs: serverObjectIds.map((id) => ({
       objectId: id,

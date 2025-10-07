@@ -1,6 +1,6 @@
 # Key server operations
 
-Use this guide to operate a Seal key server in either of the following scenarios:
+Use this guide to operate a MyData key server in either of the following scenarios:
 
 - **As a service provider:** run a key server as a service for developers.
 - **As a developer:** run a key server for your own development and testing.
@@ -12,29 +12,29 @@ Use the relevant package ID `<PACKAGE_ID>` to register your key server on the My
 | Testnet | 0x927a54e9ae803f82ebf480136a9bcff45101ccbe28b13f433c89f5181069d682 |
 | Mainnet | 0xa212c4c6c7183b911d0be8768f4cb1df7a383025b5d0ba0c014009f0f30f5f8d | 
 
-A Seal key server can operate in one of two modes - `Open` or `Permissioned`:
+A MyData key server can operate in one of two modes - `Open` or `Permissioned`:
 
 - **Open mode**: In open mode, the key server accepts decryption requests for *any* onchain package. It uses a single master key to serve all access policies across packages. This mode is suitable for public or general-purpose deployments where package-level isolation is not required.
 - **Permissioned mode**: In permissioned mode, the key server restricts access to a manually approved list of packages associated with specific clients or applications. Each client is served using a dedicated master key.
     - This mode also supports importing or exporting the client-specific key if needed, for purposes such as disaster recovery or key server rotation.
     - The approved package ID for a client **must** be the package’s **first published version**. This ensures that the key server continues to recognize the package after upgrades. One does not need to add new versions of the package to a client's allowlist.
 
-You can choose the mode that best fits your deployment model and security requirements. The following sections provide more details on both options. Also see [Seal CLI](./SealCLI.md) for reference.
+You can choose the mode that best fits your deployment model and security requirements. The following sections provide more details on both options. Also see [MyData CLI](./MyDataCLI.md) for reference.
 
 ## Open mode
 
-In `Open` mode, the key server allows decryption requests for Seal policies from any package. This mode is ideal for testing or for deployments where the key server is operated as a best-effort service without direct user liability.
+In `Open` mode, the key server allows decryption requests for MyData policies from any package. This mode is ideal for testing or for deployments where the key server is operated as a best-effort service without direct user liability.
 
 Before starting the key server, you must generate a BLS master key pair. This command outputs both the master secret key and the public key.
 
 ```shell
-$ cargo run --bin seal-cli genkey
+$ cargo run --bin mydata-cli genkey
 Master key: <MASTER_KEY>
 Public key: <MASTER_PUBKEY>
 ```
 
-To make the key server discoverable by Seal clients, register it on-chain.
-Call the `create_and_transfer_v1` function from the `seal::key_server` module like following:
+To make the key server discoverable by MyData clients, register it on-chain.
+Call the `create_and_transfer_v1` function from the `mydata::key_server` module like following:
 
 ```shell
 $ mys client switch --env <NETWORK>
@@ -46,8 +46,8 @@ $ mys client call --function create_and_transfer_v1 --module key_server --packag
 
 To start the key server in `Open` mode, run the command `cargo run --bin key-server`, but before running the server, set the following environment variables:
 
-- `MASTER_KEY`: The master secret key generated using the `seal-cli` tool.
-- `CONFIG_PATH`: The path to a .yaml configuration file that specifies key server settings. For the configuration file format, see the [example config](https://github.com/MystenLabs/seal/tree/main/crates/key-server/key-server-config.yaml).
+- `MASTER_KEY`: The master secret key generated using the `mydata-cli` tool.
+- `CONFIG_PATH`: The path to a .yaml configuration file that specifies key server settings. For the configuration file format, see the [example config](https://github.com/MystenLabs/mydata/tree/main/crates/key-server/key-server-config.yaml).
 
 In the config file, make sure to:
 
@@ -66,26 +66,26 @@ $ CONFIG_PATH=crates/key-server/key-server-config.yaml MASTER_KEY=<MASTER_KEY> c
 Alternatively, run with docker:
 
 ```shell
-$ docker build -t seal-key-server . --build-arg GIT_REVISION="$(git describe --always --abbrev=12 --dirty --exclude '*')" 
+$ docker build -t mydata-key-server . --build-arg GIT_REVISION="$(git describe --always --abbrev=12 --dirty --exclude '*')" 
 
 $ docker run -p 2024:2024 -v $(pwd)/crates/key-server/key-server-config.yaml:/config/key-server-config.yaml \
   -e CONFIG_PATH=/config/key-server-config.yaml \
    -e MASTER_KEY=<MASTER_KEY> \
-   seal-key-server
+   mydata-key-server
 ```
 
 ## Permissioned mode
 
-In `Permissioned` mode, the key server only allows decryption requests for Seal policies from explicitly allowlisted packages. This is the recommended mode for B2B deployments where tighter access control and client-specific key separation are required.
+In `Permissioned` mode, the key server only allows decryption requests for MyData policies from explicitly allowlisted packages. This is the recommended mode for B2B deployments where tighter access control and client-specific key separation are required.
 
-Start by generating a master seed for the key server. Use the `seal-cli` tool as `cargo run --bin seal-cli gen-seed`. This command outputs the secret master seed which should be stored securely.
+Start by generating a master seed for the key server. Use the `mydata-cli` tool as `cargo run --bin mydata-cli gen-seed`. This command outputs the secret master seed which should be stored securely.
 
 ```shell
-$ cargo run --bin seal-cli gen-seed
+$ cargo run --bin mydata-cli gen-seed
 Seed: <MASTER_SEED>
 ```
 
-Next, create a configuration file in .yaml format following the instructions in the [example config](https://github.com/MystenLabs/seal/tree/main/crates/key-server/key-server-config.yaml) and with the following properties:
+Next, create a configuration file in .yaml format following the instructions in the [example config](https://github.com/MystenLabs/mydata/tree/main/crates/key-server/key-server-config.yaml) and with the following properties:
 
 - Set the mode to `!Permissioned`.
 - Initialize with an empty client configs (clients can be added later).
@@ -95,7 +95,7 @@ Next, create a configuration file in .yaml format following the instructions in 
     client_configs:
 ```
 
-Set the environment variable `MASTER_KEY` to the master secret seed generated by the `seal-cli` tool, and the environment variable `CONFIG_PATH` pointing to a .yaml configuration file. Run the server using `cargo run --bin key-server`. It should abort after printing a list of unassigned derived public keys (search for logs with the text `Unassigned derived public key`).
+Set the environment variable `MASTER_KEY` to the master secret seed generated by the `mydata-cli` tool, and the environment variable `CONFIG_PATH` pointing to a .yaml configuration file. Run the server using `cargo run --bin key-server`. It should abort after printing a list of unassigned derived public keys (search for logs with the text `Unassigned derived public key`).
 
 ```shell
 # MASTER_KEY=<MASTER_SEED> CONFIG_PATH=crates/key-server/key-server-config.yaml cargo run --bin key-server 
@@ -113,7 +113,7 @@ Each supported client must have a registered on-chain key server object to enabl
 
 ### Register a client
 
-- Register a new key server on-chain by calling the `create_and_transfer_v1` function from the `seal::key_server` module with an unassigned derived public key. 
+- Register a new key server on-chain by calling the `create_and_transfer_v1` function from the `mydata::key_server` module with an unassigned derived public key. 
     - The derivation index for first client is `0` and its derived public key placeholder is `<PUBKEY_0>`. Similarly, the derivation index for nth client is `n-1` and its derived public key placeholder is `<PUBKEY_n-1>`.
 
 ```shell
@@ -159,7 +159,7 @@ $ docker run -p 2024:2024 \
   -v $(pwd)/crates/key-server/key-server-config.yaml:/config/key-server-config.yaml \
   -e CONFIG_PATH=/config/key-server-config.yaml \
   -e MASTER_KEY=<MASTER_SEED> \
-  seal-key-server
+  mydata-key-server
 ```
 
 To add more clients, repeat the above steps with unassigned public keys, e.g `<PUBKEY_1>, <PUBKEY_2>`.
@@ -168,12 +168,12 @@ To add more clients, repeat the above steps with unassigned public keys, e.g `<P
 
 In rare cases where you need to export a client key:
 
-- Use the `seal-cli` tool as `cargo run --bin seal-cli derive-key --seed $MASTER_SEED --index X`. Replace `X` with the `derivation_index` of the key you want to export. The tool will output the corresponding master key, which can be imported by another key server if needed.
+- Use the `mydata-cli` tool as `cargo run --bin mydata-cli derive-key --seed $MASTER_SEED --index X`. Replace `X` with the `derivation_index` of the key you want to export. The tool will output the corresponding master key, which can be imported by another key server if needed.
 
 Here's an example command assuming the key server owner is exporting the key at index 0:
 
 ```shell
-$ cargo run --bin seal-cli derive-key --seed <MASTER_SEED> --index 0
+$ cargo run --bin mydata-cli derive-key --seed <MASTER_SEED> --index 0
 
 Master key: <CLIENT_MASTER_KEY>
 Public key: <CLIENT_MASTER_PUBKEY>
@@ -236,12 +236,12 @@ $ docker run -p 2024:2024 \
   -e CONFIG_PATH=/config/key-server-config.yaml \
   -e BOB_BLS_KEY=<CLIENT_MASTER_KEY> \
   -e MASTER_KEY=<MASTER_SEED> \
-  seal-key-server
+  mydata-key-server
 ```
 
 ## Infrastructure requirements
 
-The Seal key server is a lightweight, stateless service designed for easy horizontal scaling. Because it doesn’t require persistent storage, you can run multiple instances behind a load balancer to increase availability and resilience. Each instance must have access to a trusted [MySocial Full node](https://docs.mys.io/guides/operator/mys-full-node) — ideally one that’s geographically close to reduce latency during policy checks and key operations.
+The MyData key server is a lightweight, stateless service designed for easy horizontal scaling. Because it doesn’t require persistent storage, you can run multiple instances behind a load balancer to increase availability and resilience. Each instance must have access to a trusted [MySocial Full node](https://docs.mys.io/guides/operator/mys-full-node) — ideally one that’s geographically close to reduce latency during policy checks and key operations.
 
 The server is initialized with a master key (or seed), which must be kept secure. You can store this key using a cloud-based Key Management System (KMS), or in a self-managed software or hardware vault. If you’re importing keys, those should be protected using the same secure storage approach.
 

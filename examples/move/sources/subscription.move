@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -106,7 +105,7 @@ fun approve_internal(id: vector<u8>, sub: &Subscription, service: &Service, c: &
     is_prefix(service.id.to_bytes(), id)
 }
 
-entry fun seal_approve(id: vector<u8>, sub: &Subscription, service: &Service, c: &Clock) {
+entry fun mydata_approve(id: vector<u8>, sub: &Subscription, service: &Service, c: &Clock) {
     assert!(approve_internal(id, sub, service, c), ENoAccess);
 }
 

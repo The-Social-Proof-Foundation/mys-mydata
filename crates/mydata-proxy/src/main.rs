@@ -1,11 +1,10 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
 use anyhow::Result;
 use clap::Parser;
-use seal_proxy::metrics;
-use seal_proxy::{
+use mydata_proxy::metrics;
+use mydata_proxy::{
     admin::{app, make_reqwest_client, server},
     config::{load, ProxyConfig},
     histogram_relay::start_prometheus_server,
@@ -14,7 +13,7 @@ use seal_proxy::{
 use tracing::info;
 
 // Define the `GIT_REVISION` and `VERSION` consts
-seal_proxy::bin_version!();
+mydata_proxy::bin_version!();
 
 /// user agent we use when posting to mimir
 static APP_USER_AGENT: &str = const_str::concat!(env!("CARGO_BIN_NAME"), "/", VERSION);
@@ -29,7 +28,7 @@ struct Args {
     #[arg(
         long,
         short,
-        default_value = "./seal-proxy.yaml",
+        default_value = "./mydata-proxy.yaml",
         help = "Specify the config file path to use"
     )]
     config: String,
@@ -42,7 +41,7 @@ async fn main() -> Result<()> {
     // Initialize tracing
     tracing_subscriber::fmt::init();
 
-    let _registry_guard = metrics::seal_proxy_prom_registry();
+    let _registry_guard = metrics::mydata_proxy_prom_registry();
     let args = Args::parse();
 
     let config: ProxyConfig = load(&args.config)?;

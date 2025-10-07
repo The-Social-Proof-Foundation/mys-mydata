@@ -1,13 +1,12 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
 /// KeyRequest pattern:
 /// - Policy is checked onchain, and if granted, a KeyRequest object is returned to the user.
-/// - The user can then use the KeyRequest object to access the associated key using Seal.
+/// - The user can then use the KeyRequest object to access the associated key using MyData.
 ///
-/// Dapp developers need to define how to contrust KeyRequest, and implement seal_approve that
-/// only calls verify. Seal is agnostic to the actual policy.
+/// Dapp developers need to define how to contrust KeyRequest, and implement mydata_approve that
+/// only calls verify. MyData is agnostic to the actual policy.
 ///
 /// Use cases that can be built on top of this: pay per key request, complex policies in which
 /// safety during dryRun must be guaranteed.
@@ -57,7 +56,7 @@ module patterns::key_request {
     }
 
     /// Verify that the KeyRequest is consistent with the given parameters, and that it has not expired.
-    /// The dapp needs to call only this function in seal_approve.
+    /// The dapp needs to call only this function in mydata_approve.
     public fun verify<T: drop>(
         req: &KeyRequest,
         _w: T,
@@ -107,9 +106,9 @@ module patterns::key_request_whitelist_test {
         kro::request_key(WITNESS {}, wl.id.to_bytes(), ctx.sender(), c, TTL, ctx)
     }
 
-    /// Seal only checks consistency of the request using req.verify.
+    /// MyData only checks consistency of the request using req.verify.
     /// The actual policy is checked in request_access above.
-    entry fun seal_approve(id: vector<u8>, req: &kro::KeyRequest, c: &Clock, ctx: &TxContext) {
+    entry fun mydata_approve(id: vector<u8>, req: &kro::KeyRequest, c: &Clock, ctx: &TxContext) {
         assert!(req.verify(WITNESS {}, id, ctx.sender(), c), ENoAccess);
     }
 
@@ -122,7 +121,7 @@ module patterns::key_request_whitelist_test {
 
         let wl = create_whitelist(vector[@0x0, @0x1], ctx);
         let kr = request_access(&wl, &c, ctx);
-        seal_approve(object::id(&wl).to_bytes(), &kr, &c, ctx);
+        mydata_approve(object::id(&wl).to_bytes(), &kr, &c, ctx);
 
         kr.destroy();
         destroy_for_testing(wl);

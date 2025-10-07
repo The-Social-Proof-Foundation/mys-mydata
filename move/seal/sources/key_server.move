@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -7,7 +6,7 @@
 //   impersonation) and a PoP(key=IBE key, m=[key_server_id | IBE public key]).
 // - Key server should expose an endpoint /fetch_key that allows users to request a key from the key server.
 
-module seal::key_server;
+module mydata::key_server;
 
 use std::string::String;
 use mys::{bls12381::{G2, g2_from_bytes}, dynamic_field as df, group_ops::Element};

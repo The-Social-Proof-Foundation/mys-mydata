@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -37,7 +36,7 @@ static MIDDLEWARE_OPS: Lazy<CounterVec> = Lazy::new(|| {
     .unwrap())
 });
 
-/// we expect that calling seal nodes have known bearer tokens
+/// we expect that calling mydata nodes have known bearer tokens
 pub async fn expect_valid_bearer_token(
     TypedHeader(auth_header): TypedHeader<Authorization<Bearer>>,
     Extension(allower): Extension<Arc<BearerTokenProvider>>,
@@ -54,7 +53,7 @@ pub async fn expect_valid_bearer_token(
     }
 }
 
-/// we expect seal to send us an http header content-length encoding.
+/// we expect mydata to send us an http header content-length encoding.
 pub async fn expect_content_length(
     TypedHeader(_content_length): TypedHeader<ContentLength>,
     request: Request<Body>,

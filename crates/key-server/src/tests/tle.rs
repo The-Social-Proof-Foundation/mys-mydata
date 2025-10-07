@@ -1,9 +1,8 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::tests::externals::sign;
-use crate::tests::SealTestCluster;
+use crate::tests::MyDataTestCluster;
 use crate::time::current_epoch_time;
 use crate::valid_ptb::ValidPtb;
 use crate::InternalError;
@@ -22,7 +21,7 @@ use tracing_test::traced_test;
 #[traced_test]
 #[tokio::test]
 async fn test_tle_policy() {
-    let mut tc = SealTestCluster::new(1).await;
+    let mut tc = MyDataTestCluster::new(1).await;
     tc.add_open_server().await;
 
     let (package_id, _) = tc.publish("patterns").await;
@@ -95,7 +94,7 @@ async fn test_tle_policy() {
 #[traced_test]
 #[tokio::test]
 async fn test_tle_certificate() {
-    let mut tc = SealTestCluster::new(1).await;
+    let mut tc = MyDataTestCluster::new(1).await;
     tc.add_open_server().await;
     let (package_id, _) = tc.publish("patterns").await;
 
@@ -211,7 +210,7 @@ async fn test_tle_certificate() {
 #[traced_test]
 #[tokio::test]
 async fn test_tle_signed_request() {
-    let mut tc = SealTestCluster::new(1).await;
+    let mut tc = MyDataTestCluster::new(1).await;
     tc.add_open_server().await;
 
     let (package_id, _) = tc.publish("patterns").await;
@@ -266,14 +265,14 @@ fn tle_create_ptb(package_id: ObjectID, time: u64) -> ProgrammableTransaction {
     builder.programmable_move_call(
         package_id,
         Identifier::new("tle").unwrap(),
-        Identifier::new("seal_approve").unwrap(),
+        Identifier::new("mydata_approve").unwrap(),
         vec![],
         vec![id, clock],
     );
     builder.programmable_move_call(
         package_id,
         Identifier::new("tle").unwrap(),
-        Identifier::new("seal_approve").unwrap(),
+        Identifier::new("mydata_approve").unwrap(),
         vec![],
         vec![id_0, clock],
     );

@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -39,16 +38,16 @@ pub(crate) mod whitelist;
 
 mod server;
 
-/// Wrapper for MySocial test cluster with some Seal specific functionality.
-pub(crate) struct SealTestCluster {
+/// Wrapper for MySocial test cluster with some MyData specific functionality.
+pub(crate) struct MyDataTestCluster {
     cluster: TestCluster,
     #[allow(dead_code)]
     pub(crate) registry: (ObjectID, ObjectID),
     pub(crate) servers: Vec<(ObjectID, Server)>,
-    pub(crate) users: Vec<SealUser>,
+    pub(crate) users: Vec<MyDataUser>,
 }
 
-pub(crate) struct SealUser {
+pub(crate) struct MyDataUser {
     address: MysAddress,
     keypair: Ed25519KeyPair,
 }
@@ -62,14 +61,14 @@ pub enum KeyServerType {
     },
 }
 
-impl SealTestCluster {
-    /// Create a new SealTestCluster with the given number users. To add servers, use the `add_server` method.
+impl MyDataTestCluster {
+    /// Create a new MyDataTestCluster with the given number users. To add servers, use the `add_server` method.
     pub async fn new(users: usize) -> Self {
         let cluster = TestClusterBuilder::new()
             .with_num_validators(1)
             .build()
             .await;
-        let registry = Self::publish_internal(&cluster, "seal").await;
+        let registry = Self::publish_internal(&cluster, "mydata").await;
         Self {
             cluster,
             servers: vec![],
@@ -77,7 +76,7 @@ impl SealTestCluster {
             users: (0..users)
                 .map(|_| {
                     let (address, keypair) = get_key_pair_from_rng(&mut thread_rng());
-                    SealUser { address, keypair }
+                    MyDataUser { address, keypair }
                 })
                 .collect(),
         }
@@ -360,7 +359,7 @@ impl SealTestCluster {
 
 #[tokio::test]
 async fn test_pkg_upgrade() {
-    let mut setup = SealTestCluster::new(0).await;
+    let mut setup = MyDataTestCluster::new(0).await;
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/tests/whitelist_v1");
     let (package_id, upgrade_cap) = setup.publish_path(path).await;
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/tests/whitelist_v2");

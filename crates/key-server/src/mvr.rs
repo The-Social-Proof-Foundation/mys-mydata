@@ -1,12 +1,11 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
-//! This module provides functionality to interact with the Move Registry (MVR) on behalf of Seal.
+//! This module provides functionality to interact with the Move Registry (MVR) on behalf of MyData.
 //!
 //! MVR (Move Registry) is a registry for Move packages and their metadata.
 //!
-//! A few facts about MVR that are important regarding its usage in Seal:
+//! A few facts about MVR that are important regarding its usage in MyData:
 //! * Only the owner of a Move package can register an MVR name for it using its `UpgradeCap`. It may point to a Move package on mainnet, testnet or neither.
 //! * There is a registry on mainnet that is used to store all MVR records (see [MVR_REGISTRY]). Using the MVR name, we can look up an `app_record` here.
 //! * If there is an `app_info` field in the `app_record`, there is a package address in this that points to the package address on mainnet.
@@ -346,7 +345,7 @@ mod tests {
                     RetryConfig::default(),
                     None,
                 ),
-                "@pkg/seal-demo-1234",
+                "@pkg/mydata-demo-1234",
                 &KeyServerOptions::new_for_testing(Network::Mainnet),
             )
             .await
@@ -363,7 +362,7 @@ mod tests {
                     RetryConfig::default(),
                     None,
                 ),
-                "@pkg/seal-demo-1234",
+                "@pkg/mydata-demo-1234",
                 &KeyServerOptions::new_for_testing(Network::Testnet),
             )
             .await
@@ -384,7 +383,7 @@ mod tests {
                     RetryConfig::default(),
                     None,
                 ),
-                "@saemundur/seal",
+                "@saemundur/mydata",
                 &KeyServerOptions::new_for_testing(Network::Mainnet),
             )
             .await
@@ -412,8 +411,8 @@ mod tests {
 
     #[test]
     fn test_mvr_names() {
-        assert!(VersionedName::from_str("@saemundur/seal").is_ok());
-        assert!(VersionedName::from_str("saemundur/seal").is_err());
+        assert!(VersionedName::from_str("@saemundur/mydata").is_ok());
+        assert!(VersionedName::from_str("saemundur/mydata").is_err());
         assert!(VersionedName::from_str("saemundur").is_err());
         assert!(VersionedName::from_str(
             "0xe8417c530cde59eddf6dfb760e8a0e3e2c6f17c69ddaab5a73dd6a6e65fc463b"

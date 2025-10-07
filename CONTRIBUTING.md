@@ -1,6 +1,6 @@
 # Contributing to This Project
 
-Thanks for considering making a contribution to Seal or its documentation. Before you get started, please take a moment to read these guidelines.
+Thanks for considering making a contribution to MyData or its documentation. Before you get started, please take a moment to read these guidelines.
 
 ## Important Note
 

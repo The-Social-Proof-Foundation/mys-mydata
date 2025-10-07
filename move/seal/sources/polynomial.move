@@ -1,10 +1,9 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
-module seal::polynomial;
+module mydata::polynomial;
 
-use seal::gf256;
+use mydata::gf256;
 
 const EIncomatibleInputLengths: u64 = 1;
 

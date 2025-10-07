@@ -14,7 +14,7 @@ importers:
       '@socialproof/dapp-kit':
         specifier: ^0.17.7
         version: 0.17.7(@tanstack/react-query@5.71.10(react@19.1.0))(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.2)
-      '@mysten/seal':
+      '@mysten/mydata':
         specifier: 0.5.2
         version: 0.5.2(typescript@5.8.2)
       '@socialproof/mys':
@@ -503,7 +503,7 @@ packages:
       '@tanstack/react-query': ^5.0.0
       react: '*'
 
-  '@mysten/seal@0.5.2':
+  '@mysten/mydata@0.5.2':
     resolution: {integrity: sha512-hsUphZuZ3UycrYccCHQy5yUlWKjfZxTFKT9gezxWxitTR3TGSKPeiax1ISmchXFqnJ895k66aHf4OGtUTcYPyg==}
 
   '@mysten/slush-wallet@0.1.24':
@@ -2518,7 +2518,7 @@ packages:
     hasBin: true
 
   jsx-ast-utils@3.3.5:
-    resolution: {integrity: sha512-ZZow9HBI5O6EPgSJLUb8n2NKgmVWTwCvHGwFuJlMjvLFqlGG6pjirPhtdsseaLZjSibD8eegzmYpUZwoIlj2cQ==}
+    resolution: {integrity: sha512-ZZow9HBI5O6EPgSJLUb8n2NKgmVWTwCvHGwFuJlMjvLFqlGG6pjirPhtdsMYDATAZjSibD8eegzmYpUZwoIlj2cQ==}
     engines: {node: '>=4.0'}
 
   keyv@4.5.4:
@@ -3558,7 +3558,7 @@ snapshots:
       - react-dom
       - typescript
 
-  '@mysten/seal@0.5.2(typescript@5.8.2)':
+  '@mysten/mydata@0.5.2(typescript@5.8.2)':
     dependencies:
       '@socialproof/bcs': 1.7.0
       '@socialproof/mys': 1.37.6(typescript@5.8.2)

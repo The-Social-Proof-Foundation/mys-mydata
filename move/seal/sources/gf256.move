@@ -1,10 +1,9 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
 /// Implementation of the Galois field GF(2^8) with irreducible polynomial x^8 + x^4 + x^3 + x + 1.
 /// This is the field used in AES.
-module seal::gf256;
+module mydata::gf256;
 
 const ELogOfZero: u64 = 1;
 const EDivideByZero: u64 = 2;

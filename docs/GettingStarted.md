@@ -1,25 +1,25 @@
 # Getting Started
 
 !!! note
-    This guide is meant to help you quickly bootstrap with Seal. Before deploying your app to production or Mainnet, please review the full Seal documentation to understand the design, security best practices, and operational requirements.
+    This guide is meant to help you quickly bootstrap with MyData. Before deploying your app to production or Mainnet, please review the full MyData documentation to understand the design, security best practices, and operational requirements.
 
 ## Bootstrap your app
 
-Seal makes it simple to add decentralized encryption and programmable access control to your Web3 applications. Follow these steps to get started:
+MyData makes it simple to add decentralized encryption and programmable access control to your Web3 applications. Follow these steps to get started:
 
-**1. Install the Seal SDK**
+**1. Install the MyData SDK**
 
-Seal provides a TypeScript SDK for easy integration. Install it from npm:
+MyData provides a TypeScript SDK for easy integration. Install it from npm:
 
 ```shell
-$ npm install @mysten/seal
+$ npm install @mysten/mydata
 ```
 
-Reference: [SDK on NPM](https://www.npmjs.com/package/@mysten/seal)
+Reference: [SDK on NPM](https://www.npmjs.com/package/@mysten/mydata)
 
 **2. Choose key servers in Testnet**
 
-Seal relies on a committee of key servers to generate threshold-based decryption keys.
+MyData relies on a committee of key servers to generate threshold-based decryption keys.
 
 - Use [verified key servers](./Pricing.md#verified-key-servers) for Testnet.
 - For permissioned servers, contact the provider to allowlist your access policy package ID (see below).
@@ -48,7 +48,7 @@ const { encryptedObject: encryptedBytes, key: backupKey } = await client.encrypt
 });
 ```
 
-Learn more in [Encryption Guide](./UsingSeal.md#encryption).
+Learn more in [Encryption Guide](./UsingMyData.md#encryption).
 
 **5. Store encrypted data**
 
@@ -56,13 +56,13 @@ Store your encrypted content in Walrus (using [HTTP API](https://docs.wal.app/us
 
 **6. Decrypt data with access control**
 
-When a user requests access, Seal checks your onchain policy. If approved, decryption keys are provided to meet the threshold.
+When a user requests access, MyData checks your onchain policy. If approved, decryption keys are provided to meet the threshold.
 
 ```typescript
-// Create the Transaction for evaluating the seal_approve function.
+// Create the Transaction for evaluating the mydata_approve function.
 const tx = new Transaction();
 tx.moveCall({
-    target: `${packageId}::${moduleName}::seal_approve`, 
+    target: `${packageId}::${moduleName}::mydata_approve`, 
     arguments: [
         tx.pure.vector("u8", fromHEX(id)),
         // other arguments
@@ -76,12 +76,12 @@ const decryptedBytes = await client.decrypt({
 });
 ```
 
-Learn more in [Decryption Guide](./UsingSeal.md#decryption).
+Learn more in [Decryption Guide](./UsingMyData.md#decryption).
 
 ## Next steps
 
-- Read the [Seal Design](./Design.md) doc for a deeper understanding of how Seal works.
-- Explore example apps in the [Examples Directory](https://github.com/MystenLabs/seal/tree/main/examples).
+- Read the [MyData Design](./Design.md) doc for a deeper understanding of how MyData works.
+- Explore example apps in the [Examples Directory](https://github.com/MystenLabs/mydata/tree/main/examples).
 - Review the [Security Best Practices](./SecurityBestPractices.md) to ensure you’re following recommended guidelines.
 - When deploying to Mainnet, decide whether to run your own key server as part of your threshold committee.
     - If you operate a secure, hardened Full node and have the necessary DevOps expertise & bandwidth, you can choose to self-run a key server. See the [Key Server Operations Guide](./KeyServerOps.md).

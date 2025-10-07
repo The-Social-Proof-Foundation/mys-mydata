@@ -36,7 +36,7 @@ server_mode: !Open
 # A client config contains:
 # - Client name - for debugging purposes only, can always be modified.
 # - The associated key server object id. Should never change.
-# - The allowed packages with Seal policies. Must be unique and point to the
+# - The allowed packages with MyData policies. Must be unique and point to the
 #   first versions of the packages. Packages can be added to the list later.
 # - The type of the client master key. See below.
 #
@@ -90,7 +90,7 @@ server_mode: !Open
 # allowed_staleness: '2m'
 # session_key_ttl_max: '30m'
 
-# Optional: Metrics push configuration to send metrics to seal-proxy
+# Optional: Metrics push configuration to send metrics to mydata-proxy
 # Uncomment and configure to enable pushing metrics to an external endpoint
 # metrics_push_config:
 #   bearer_token: "random-string-for-testing"

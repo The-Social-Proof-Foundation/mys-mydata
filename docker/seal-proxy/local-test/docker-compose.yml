@@ -1,14 +1,14 @@
 services:
-  seal-proxy:
-    container_name: seal-proxy
-    command: /opt/seal-proxy/bin/seal-proxy --config=/app/config/seal-proxy.yaml --bearer-tokens-path=/app/config/bearer-tokens.yaml
+  mydata-proxy:
+    container_name: mydata-proxy
+    command: /opt/mydata-proxy/bin/mydata-proxy --config=/app/config/mydata-proxy.yaml --bearer-tokens-path=/app/config/bearer-tokens.yaml
     build:
       context: ../../..
-      dockerfile: docker/seal-proxy/Dockerfile
+      dockerfile: docker/mydata-proxy/Dockerfile
     ports:
       - "8000:8000"
     volumes:
-      - ./seal-proxy.yaml:/app/config/seal-proxy.yaml
+      - ./mydata-proxy.yaml:/app/config/mydata-proxy.yaml
       - ./bearer-tokens.yaml:/app/config/bearer-tokens.yaml
     environment:
       - RUST_LOG=info
@@ -59,9 +59,9 @@ services:
     container_name: metrics-generator
     build:
       context: ../../..
-      dockerfile: docker/seal-proxy/local-test/metrics-generator/Dockerfile
+      dockerfile: docker/mydata-proxy/local-test/metrics-generator/Dockerfile
     depends_on:
-      seal-proxy:
+      mydata-proxy:
         condition: service_started
     networks:
       metrics-network:

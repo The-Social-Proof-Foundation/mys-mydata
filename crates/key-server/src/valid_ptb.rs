@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 use crate::errors::InternalError;
@@ -70,9 +69,9 @@ impl TryFrom<ProgrammableTransaction> for ValidPtb {
             // Restriction: The first argument to the move call must be a non-empty id.
             let _ = get_key_id(&ptb, cmd)?;
 
-            // Restriction: The called function must start with the prefix seal_approve.
+            // Restriction: The called function must start with the prefix mydata_approve.
             // Restriction: All commands in the PTB must use the same package id.
-            if !cmd.function.starts_with("seal_approve") || cmd.package != pkg_id {
+            if !cmd.function.starts_with("mydata_approve") || cmd.package != pkg_id {
                 return_err!(
                     InternalError::InvalidPTB("Invalid function or package id".to_string()),
                     "Invalid function or package id {:?}",
@@ -105,13 +104,13 @@ fn get_key_id(
     };
     let Some(CallArg::Pure(id)) = &ptb.inputs.get(arg_idx as usize) else {
         return_err!(
-            InternalError::InvalidPTB("Invalid first parameter for seal_approve".to_string()),
+            InternalError::InvalidPTB("Invalid first parameter for mydata_approve".to_string()),
             "Invalid PTB command {:?}",
             cmd
         );
     };
     bcs::from_bytes(id).map_err(|_| {
-        InternalError::InvalidPTB("Invalid BCS for first parameter for seal_approve".to_string())
+        InternalError::InvalidPTB("Invalid BCS for first parameter for mydata_approve".to_string())
     })
 }
 
@@ -176,14 +175,14 @@ mod tests {
         builder.programmable_move_call(
             pkgid,
             Identifier::new("bla").unwrap(),
-            Identifier::new("seal_approve_x").unwrap(),
+            Identifier::new("mydata_approve_x").unwrap(),
             vec![],
             vec![id_caller],
         );
         builder.programmable_move_call(
             pkgid,
             Identifier::new("bla2").unwrap(),
-            Identifier::new("seal_approve_y").unwrap(),
+            Identifier::new("mydata_approve_y").unwrap(),
             vec![],
             vec![id_caller],
         );
@@ -213,7 +212,7 @@ mod tests {
         builder.programmable_move_call(
             pkgid,
             Identifier::new("bla").unwrap(),
-            Identifier::new("seal_approve").unwrap(),
+            Identifier::new("mydata_approve").unwrap(),
             vec![],
             vec![],
         );
@@ -237,7 +236,7 @@ mod tests {
         builder.programmable_move_call(
             pkgid,
             Identifier::new("bla").unwrap(),
-            Identifier::new("seal_approve_x").unwrap(),
+            Identifier::new("mydata_approve_x").unwrap(),
             vec![],
             vec![id_caller],
         );
@@ -261,14 +260,14 @@ mod tests {
         builder.programmable_move_call(
             pkgid1,
             Identifier::new("bla").unwrap(),
-            Identifier::new("seal_approve").unwrap(),
+            Identifier::new("mydata_approve").unwrap(),
             vec![],
             vec![id],
         );
         builder.programmable_move_call(
             pkgid2, // Different package ID
             Identifier::new("bla").unwrap(),
-            Identifier::new("seal_approve").unwrap(),
+            Identifier::new("mydata_approve").unwrap(),
             vec![],
             vec![id],
         );

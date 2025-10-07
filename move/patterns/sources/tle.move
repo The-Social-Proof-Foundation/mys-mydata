@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -36,7 +35,7 @@ fun check_policy(id: vector<u8>, c: &clock::Clock): bool {
     (leftovers.length() == 0) && (c.timestamp_ms() >= t)
 }
 
-entry fun seal_approve(id: vector<u8>, c: &clock::Clock) {
+entry fun mydata_approve(id: vector<u8>, c: &clock::Clock) {
     assert!(check_policy(id, c), ENoAccess);
 }
 

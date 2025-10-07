@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 use crate::errors::InternalError::{
@@ -44,8 +43,8 @@ use mysten_service::package_name;
 use mysten_service::package_version;
 use mysten_service::serve;
 use rand::thread_rng;
-use seal_sdk::types::{DecryptionKey, ElGamalPublicKey, ElgamalVerificationKey, KeyId};
-use seal_sdk::{signed_message, FetchKeyResponse};
+use mydata_sdk::types::{DecryptionKey, ElGamalPublicKey, ElgamalVerificationKey, KeyId};
+use mydata_sdk::{signed_message, FetchKeyResponse};
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -305,7 +304,7 @@ impl Server {
             vptb.ptb(),
             req_id
         );
-        // Evaluate the `seal_approve*` function
+        // Evaluate the `mydata_approve*` function
         let tx_data = TransactionData::new_with_gas_coins(
             TransactionKind::ProgrammableTransaction(vptb.ptb().clone()),
             sender,
@@ -329,10 +328,10 @@ impl Server {
                             return InternalError::InvalidParameter(e.message().to_string());
                         }
                         METHOD_NOT_FOUND_CODE => {
-                            // This means that the seal_approve function is not found on the given module.
+                            // This means that the mydata_approve function is not found on the given module.
                             debug!("Function not found: {:?}", e);
                             return InternalError::InvalidPTB(
-                                "The seal_approve function was not found on the module".to_string(),
+                                "The mydata_approve function was not found on the module".to_string(),
                             );
                         }
                         _ => {}
@@ -501,7 +500,7 @@ impl Server {
         .await
     }
 
-    /// Spawn a metrics push background jobs that push metrics to seal-proxy
+    /// Spawn a metrics push background jobs that push metrics to mydata-proxy
     fn spawn_metrics_push_job(&self, registry: prometheus::Registry) -> JoinHandle<()> {
         let push_config = self.options.metrics_push_config.clone();
         if let Some(push_config) = push_config {

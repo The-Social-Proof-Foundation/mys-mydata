@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -12,8 +11,8 @@ use fastcrypto::ed25519::Ed25519Signature;
 use fastcrypto::traits::{KeyPair, Signer};
 use fastcrypto::{ed25519::Ed25519KeyPair, groups::bls12381::G1Element};
 use rand::thread_rng;
-use seal_sdk::signed_message;
-use seal_sdk::types::{ElGamalPublicKey, ElgamalVerificationKey};
+use mydata_sdk::signed_message;
+use mydata_sdk::types::{ElGamalPublicKey, ElgamalVerificationKey};
 use shared_crypto::intent::{Intent, IntentMessage, PersonalMessage};
 use mys_types::{
     base_types::ObjectID, crypto::Signature, signature::GenericSignature,

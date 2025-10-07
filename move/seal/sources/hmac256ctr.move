@@ -1,8 +1,7 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
-module seal::hmac256ctr;
+module mydata::hmac256ctr;
 
 use std::bcs;
 use mys::hmac::hmac_sha3_256;
@@ -72,6 +71,6 @@ fun test_decrypt_long() {
     let aux = b"Mark Twain";
     let decrypted = decrypt(&ciphertext, &mac, &aux, &key).borrow();
     assert!(
-        decrypted == b"The difference between a Miracle and a Fact is exactly the difference between a mermaid and a seal.",
+        decrypted == b"The difference between a Miracle and a Fact is exactly the difference between a mermaid and a mydata.",
     );
 }

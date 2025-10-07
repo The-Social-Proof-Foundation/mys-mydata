@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -9,7 +8,7 @@ use chrono::{DateTime, Utc};
 use crypto::elgamal::decrypt as elgamal_decrypt;
 use crypto::ibe::verify_user_secret_key;
 use crypto::ibe::UserSecretKey;
-use crypto::{create_full_id, seal_decrypt, IBEPublicKeys, IBEUserSecretKeys, ObjectID};
+use crypto::{create_full_id, mydata_decrypt, IBEPublicKeys, IBEUserSecretKeys, ObjectID};
 use fastcrypto::ed25519::Ed25519PublicKey;
 use fastcrypto::encoding::{Encoding, Hex};
 use fastcrypto::error::FastCryptoError;
@@ -18,10 +17,10 @@ use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use mys_sdk_types::ProgrammableTransaction;
 use tracing::debug;
-// Re-exported for seal_sdk
+// Re-exported for mydata_sdk
 pub use crypto::elgamal::genkey;
 pub use crypto::ibe::PublicKey as IBEPublicKey;
-pub use crypto::{seal_encrypt, EncryptedObject};
+pub use crypto::{mydata_encrypt, EncryptedObject};
 pub use types::{Certificate, ElGamalSecretKey, FetchKeyRequest, FetchKeyResponse};
 
 pub fn signed_message(
@@ -62,30 +61,30 @@ pub fn signed_request(
     bcs::to_bytes(&req).expect("should serialize")
 }
 
-/// Given the ElGamalSecretKey, elgamal decrypt and verify all usks from each seal responses,
+/// Given the ElGamalSecretKey, elgamal decrypt and verify all usks from each mydata responses,
 /// then decrypt all encrypted objects using the decrypted usks.
-pub fn seal_decrypt_all_objects(
+pub fn mydata_decrypt_all_objects(
     enc_secret: &ElGamalSecretKey,
-    seal_responses: &[(ObjectID, FetchKeyResponse)],
+    mydata_responses: &[(ObjectID, FetchKeyResponse)],
     encrypted_objects: &[EncryptedObject],
     server_pk_map: &HashMap<ObjectID, IBEPublicKey>,
 ) -> FastCryptoResult<Vec<Vec<u8>>> {
     if encrypted_objects.is_empty() {
         return Ok(Vec::new());
     }
-    if seal_responses.is_empty() {
+    if mydata_responses.is_empty() {
         return Err(FastCryptoError::GeneralError(
-            "No seal responses provided".to_string(),
+            "No mydata responses provided".to_string(),
         ));
     }
 
     let mut cached_keys: HashMap<Vec<u8>, HashMap<ObjectID, UserSecretKey>> = HashMap::new();
     let mut processed_servers: HashSet<ObjectID> = HashSet::new();
 
-    for (server_id, seal_response) in seal_responses.iter() {
+    for (server_id, mydata_response) in mydata_responses.iter() {
         if !processed_servers.insert(*server_id) {
             return Err(FastCryptoError::GeneralError(format!(
-                "Duplicate server_id {} in seal_responses",
+                "Duplicate server_id {} in mydata_responses",
                 server_id
             )));
         }
@@ -97,7 +96,7 @@ pub fn seal_decrypt_all_objects(
             ))
         })?;
 
-        for decryption_key in seal_response.decryption_keys.iter() {
+        for decryption_key in mydata_response.decryption_keys.iter() {
             let user_secret_key = elgamal_decrypt(enc_secret, &decryption_key.encrypted_key);
             verify_user_secret_key(&user_secret_key, &decryption_key.id, public_key)?;
 
@@ -149,7 +148,7 @@ pub fn seal_decrypt_all_objects(
             )));
         }
 
-        let secret = seal_decrypt(
+        let secret = mydata_decrypt(
             encrypted_object,
             &IBEUserSecretKeys::BonehFranklinBLS12381(usks),
             Some(&IBEPublicKeys::BonehFranklinBLS12381(pks)),
@@ -214,7 +213,7 @@ mod tests {
         let move_call = mys_sdk_types::Command::MoveCall(mys_sdk_types::MoveCall {
             package: pkg_id,
             module: mys_sdk_types::Identifier::from_str("bla").unwrap(),
-            function: mys_sdk_types::Identifier::from_str("seal_approve_x").unwrap(),
+            function: mys_sdk_types::Identifier::from_str("mydata_approve_x").unwrap(),
             type_arguments: vec![],
             arguments: vec![],
         });

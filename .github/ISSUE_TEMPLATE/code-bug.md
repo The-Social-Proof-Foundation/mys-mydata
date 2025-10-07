@@ -1,7 +1,7 @@
 ---
-name: Seal Code Bug
-about: Create a new software bug for issues encountered running Seal
-title: 'Seal Code Bug or Feature Request'
+name: MyData Code Bug
+about: Create a new software bug for issues encountered running MyData
+title: 'MyData Code Bug or Feature Request'
 labels: bug
 assignees: ''
 ---

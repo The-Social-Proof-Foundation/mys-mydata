@@ -4224,6 +4224,7 @@ dependencies = [
  "moka",
  "move-core-types",
  "mvr-types",
+ "mydata-sdk",
  "mys-move-build",
  "mys-sdk",
  "mys-sdk-types 0.0.1 (git+https://github.com/The-Social-Proof-Foundation/mys-rust-sdk?branch=main)",
@@ -4235,7 +4236,6 @@ dependencies = [
  "prometheus-closure-metric",
  "rand 0.8.5",
  "reqwest 0.12.15",
- "seal-sdk",
  "semver",
  "serde",
  "serde_json",
@@ -5327,6 +5327,77 @@ dependencies = [
  "serde",
  "sui-sdk-types",
  "thiserror 2.0.17",
+]
+
+[[package]]
+name = "mydata-cli"
+version = "0.5.11"
+dependencies = [
+ "bcs",
+ "clap",
+ "crypto",
+ "fastcrypto 0.1.9",
+ "mydata-sdk",
+ "mys-sdk",
+ "mys-sdk-types 0.0.1 (git+https://github.com/The-Social-Proof-Foundation/mys-rust-sdk?branch=main)",
+ "mys-types",
+ "rand 0.8.5",
+ "reqwest 0.11.27",
+ "serde",
+ "serde_json",
+ "serde_yaml 0.9.34+deprecated",
+ "tokio",
+]
+
+[[package]]
+name = "mydata-proxy"
+version = "0.5.11"
+dependencies = [
+ "anyhow",
+ "axum 0.8.4",
+ "axum-extra",
+ "base64 0.22.1",
+ "bytes",
+ "clap",
+ "const-str 0.6.2",
+ "git-version",
+ "headers",
+ "itertools 0.14.0",
+ "once_cell",
+ "prometheus",
+ "prost 0.12.6",
+ "prost-types 0.12.6",
+ "protobuf",
+ "reqwest 0.12.15",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "serde_yaml 0.9.34+deprecated",
+ "snap",
+ "tokio",
+ "tokio-util 0.7.13 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tower 0.4.13",
+ "tower-http 0.6.6",
+ "tracing",
+ "tracing-subscriber",
+ "uuid",
+]
+
+[[package]]
+name = "mydata-sdk"
+version = "0.5.11"
+dependencies = [
+ "bcs",
+ "chrono",
+ "crypto",
+ "fastcrypto 0.1.9",
+ "hex",
+ "mys-sdk-types 0.0.1 (git+https://github.com/The-Social-Proof-Foundation/mys-rust-sdk?branch=main)",
+ "mys-types",
+ "rand 0.8.5",
+ "serde",
+ "serde_json",
+ "tracing",
 ]
 
 [[package]]
@@ -9052,77 +9123,6 @@ name = "scopeguard"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
-
-[[package]]
-name = "seal-cli"
-version = "0.5.11"
-dependencies = [
- "bcs",
- "clap",
- "crypto",
- "fastcrypto 0.1.9",
- "mys-sdk",
- "mys-sdk-types 0.0.1 (git+https://github.com/The-Social-Proof-Foundation/mys-rust-sdk?branch=main)",
- "mys-types",
- "rand 0.8.5",
- "reqwest 0.11.27",
- "seal-sdk",
- "serde",
- "serde_json",
- "serde_yaml 0.9.34+deprecated",
- "tokio",
-]
-
-[[package]]
-name = "seal-proxy"
-version = "0.5.11"
-dependencies = [
- "anyhow",
- "axum 0.8.4",
- "axum-extra",
- "base64 0.22.1",
- "bytes",
- "clap",
- "const-str 0.6.2",
- "git-version",
- "headers",
- "itertools 0.14.0",
- "once_cell",
- "prometheus",
- "prost 0.12.6",
- "prost-types 0.12.6",
- "protobuf",
- "reqwest 0.12.15",
- "serde",
- "serde_json",
- "serde_with",
- "serde_yaml 0.9.34+deprecated",
- "snap",
- "tokio",
- "tokio-util 0.7.13 (registry+https://github.com/rust-lang/crates.io-index)",
- "tower 0.4.13",
- "tower-http 0.6.6",
- "tracing",
- "tracing-subscriber",
- "uuid",
-]
-
-[[package]]
-name = "seal-sdk"
-version = "0.5.11"
-dependencies = [
- "bcs",
- "chrono",
- "crypto",
- "fastcrypto 0.1.9",
- "hex",
- "mys-sdk-types 0.0.1 (git+https://github.com/The-Social-Proof-Foundation/mys-rust-sdk?branch=main)",
- "mys-types",
- "rand 0.8.5",
- "serde",
- "serde_json",
- "tracing",
-]
 
 [[package]]
 name = "sec1"

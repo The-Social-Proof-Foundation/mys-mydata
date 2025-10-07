@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "tsx simple-seal-server.test.ts",
+    "test": "tsx simple-mydata-server.test.ts",
     "lint": "eslint ."
   },
   "keywords": [],
@@ -13,7 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@socialproof/bcs": "^1.7.0",
-    "@mysten/seal": "^0.5.2",
+    "@mysten/mydata": "^0.5.2",
     "@socialproof/mys": "^1.37.6"
   },
   "devDependencies": {

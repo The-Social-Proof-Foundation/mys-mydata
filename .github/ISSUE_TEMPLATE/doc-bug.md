@@ -1,7 +1,7 @@
 ---
-name: Seal doc content issue or request
-about: Creates an issue for Seal documentation
-title: 'Seal doc content issue or request'
+name: MyData doc content issue or request
+about: Creates an issue for MyData documentation
+title: 'MyData doc content issue or request'
 labels: doc-issue
 assignees: 'abhinavg6'
 ---

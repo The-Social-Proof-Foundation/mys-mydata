@@ -11,7 +11,7 @@ importers:
       '@socialproof/bcs':
         specifier: ^1.7.0
         version: 1.7.0
-      '@mysten/seal':
+      '@mysten/mydata':
         specifier: ^0.5.2
         version: 0.5.2(typescript@5.9.2)
       '@socialproof/mys':
@@ -225,7 +225,7 @@ packages:
   '@socialproof/bcs@1.7.0':
     resolution: {integrity: sha512-8zE2Jzj2ai55RlVXx2pEMbbq+X3vB+uPGBvZr0F79IdTwuwcu4QdFG3PT/zHsytsvATkn+z0f2YDWhM5916u2A==}
 
-  '@mysten/seal@0.5.2':
+  '@mysten/mydata@0.5.2':
     resolution: {integrity: sha512-hsUphZuZ3UycrYccCHQy5yUlWKjfZxTFKT9gezxWxitTR3TGSKPeiax1ISmchXFqnJ895k66aHf4OGtUTcYPyg==}
 
   '@socialproof/mys@1.37.6':
@@ -406,7 +406,7 @@ snapshots:
       '@mysten/utils': 0.1.1
       '@scure/base': 1.2.6
 
-  '@mysten/seal@0.5.2(typescript@5.9.2)':
+  '@mysten/mydata@0.5.2(typescript@5.9.2)':
     dependencies:
       '@socialproof/bcs': 1.7.0
       '@socialproof/mys': 1.37.6(typescript@5.9.2)

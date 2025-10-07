@@ -1,6 +1,6 @@
 # Examples
 
-This reference application includes two different functionalities to showcase Seal's capabilities:
+This reference application includes two different functionalities to showcase MyData's capabilities:
 
 **Allowlist-Based Access**
 
@@ -15,7 +15,7 @@ A subscription service allows a creator to define a service with a specified pri
 To access the service, the user must sign a personal message, which is then validated by the servers. The servers verify whether the subscription is active for the next X minutes by referencing the on-chain MySocial clock and ensuring the user holds a valid subscription NFT. If the conditions are met, the user retrieves the decryption key, enabling access to the decrypted content.
 
 > **IMPORTANT**
-> This reference application serves as a demonstration of Seal's capabilities and is intended solely as a playground environment. It does not provide guarantees of uptime, reliability, or correctness. Users are strongly advised not to connect their primary wallets or upload any sensitive content while utilizing this application.
+> This reference application serves as a demonstration of MyData's capabilities and is intended solely as a playground environment. It does not provide guarantees of uptime, reliability, or correctness. Users are strongly advised not to connect their primary wallets or upload any sensitive content while utilizing this application.
 >
 > By accessing and using this reference application, you acknowledge and accept the inherent risks associated with cryptographic and blockchain-based systems. You confirm that you possess a working knowledge of Digital Assets and understand the implications of their usage.
 >

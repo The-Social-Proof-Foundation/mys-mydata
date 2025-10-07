@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -6,7 +5,7 @@ import { fromHex } from '@socialproof/bcs';
 import { Ed25519Keypair } from '@socialproof/mys/keypairs/ed25519';
 import { Transaction } from '@socialproof/mys/transactions';
 import { getFullnodeUrl, MysClient } from '@socialproof/mys/client';
-import { SealClient, SessionKey } from '@mysten/seal';
+import { MyDataClient, SessionKey } from '@mysten/mydata';
 import assert from 'assert';
 import { parseArgs } from 'node:util';
 import { readFileSync } from 'node:fs';
@@ -16,7 +15,7 @@ import { fileURLToPath } from 'node:url';
 // Get SDK version from package.json
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageJson = JSON.parse(readFileSync(join(__dirname, 'package.json'), 'utf-8'));
-const sealSdkVersion = packageJson.dependencies['@mysten/seal'].replace('^', '');
+const mydataSdkVersion = packageJson.dependencies['@mysten/mydata'].replace('^', '');
 
 const PACKAGE_IDS = {
     'testnet': '0x58dce5d91278bceb65d44666ffa225ab397fc3ae9d8398c8c779c5530bd978c2',
@@ -24,7 +23,7 @@ const PACKAGE_IDS = {
 };
 
 async function testCorsHeaders(url: string, name: string, apiKeyName?: string, apiKey?: string) {
-    console.log(`Testing CORS headers for ${name} (${url}) ${sealSdkVersion}`);
+    console.log(`Testing CORS headers for ${name} (${url}) ${mydataSdkVersion}`);
 
     const response = await fetch(`${url}/v1/service`, {
         method: 'GET',
@@ -32,7 +31,7 @@ async function testCorsHeaders(url: string, name: string, apiKeyName?: string, a
             'Content-Type': 'application/json',
             'Request-Id': crypto.randomUUID(),
             'Client-Sdk-Type': 'typescript',
-            'Client-Sdk-Version': sealSdkVersion,
+            'Client-Sdk-Version': mydataSdkVersion,
             ...(apiKeyName && apiKey ? { [apiKeyName]: apiKey } : {}),
         },
     });
@@ -52,7 +51,7 @@ async function main(network: 'testnet' | 'mainnet', keyServerConfigs: { objectId
     const testData = crypto.getRandomValues(new Uint8Array(1000));
     const packageId = PACKAGE_IDS[network];
     console.log(`packageId: ${packageId}`);
-    const client = new SealClient({
+    const client = new MyDataClient({
         suiClient,
         serverConfigs: keyServerConfigs.map(({ objectId, apiKeyName, apiKey }) => ({
             objectId,
@@ -88,11 +87,11 @@ async function main(network: 'testnet' | 'mainnet', keyServerConfigs: { objectId
         suiClient,
     });
 
-    // Construct transaction bytes for seal_approve
+    // Construct transaction bytes for mydata_approve
     const tx = new Transaction();
     const keyIdArg = tx.pure.vector('u8', fromHex(suiAddress));
     tx.moveCall({
-        target: `${packageId}::account_based::seal_approve`,
+        target: `${packageId}::account_based::mydata_approve`,
         arguments: [keyIdArg],
     });
     const txBytes = await tx.build({ client: suiClient, onlyTransactionKind: true });

@@ -1,4 +1,4 @@
-site_name: Seal Documentation
+site_name: MyData Documentation
 theme:
   name: material
   features:
@@ -27,12 +27,12 @@ nav:
   - Home: index.md
   - Getting Started: GettingStarted.md
   - Developer Guide:
-    - Seal Design: Design.md
-    - Using Seal: UsingSeal.md
+    - MyData Design: Design.md
+    - Using MyData: UsingMyData.md
     - Access Policy Example Patterns: ExamplePatterns.md
     - Security Best Practices: SecurityBestPractices.md
   - Operator Guide:
     - Key Server Operations: KeyServerOps.md
-    - Seal CLI: SealCLI.md
+    - MyData CLI: MyDataCLI.md
   - Pricing: Pricing.md
   - Terms of Service: TermsOfService.md

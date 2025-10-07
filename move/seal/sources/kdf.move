@@ -1,14 +1,13 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
-module seal::kdf;
+module mydata::kdf;
 
 use std::hash::sha3_256;
 use mys::{bls12381::{Self, G1, G2, GT}, group_ops::Element};
 
-const DST_KDF: vector<u8> = b"MYS-SEAL-IBE-BLS12381-H2-00";
-const DST_ID: vector<u8> = b"MYS-SEAL-IBE-BLS12381-00";
+const DST_KDF: vector<u8> = b"MYS-MYDATA-IBE-BLS12381-H2-00";
+const DST_ID: vector<u8> = b"MYS-MYDATA-IBE-BLS12381-00";
 
 public(package) fun kdf(
     input: &Element<GT>,

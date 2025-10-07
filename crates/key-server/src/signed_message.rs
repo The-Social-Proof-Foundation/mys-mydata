@@ -1,7 +1,6 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
-use seal_sdk::types::{ElGamalPublicKey, ElgamalVerificationKey};
+use mydata_sdk::types::{ElGamalPublicKey, ElgamalVerificationKey};
 use serde::{Deserialize, Serialize};
 use mys_types::transaction::ProgrammableTransaction;
 
@@ -35,7 +34,7 @@ mod tests {
     use fastcrypto::traits::KeyPair;
     use rand::rngs::StdRng;
     use rand::SeedableRng;
-    use seal_sdk::signed_message;
+    use mydata_sdk::signed_message;
     use std::str::FromStr;
     use mys_types::base_types::ObjectID;
     use mys_types::crypto::deterministic_random_account_key;
@@ -89,7 +88,7 @@ mod tests {
         builder.programmable_move_call(
             pkg_id,
             Identifier::new("bla").unwrap(),
-            Identifier::new("seal_approve_x").unwrap(),
+            Identifier::new("mydata_approve_x").unwrap(),
             vec![],
             vec![],
         );

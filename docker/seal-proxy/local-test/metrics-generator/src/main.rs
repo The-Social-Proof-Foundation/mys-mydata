@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -36,7 +35,7 @@ async fn main() -> Result<()> {
     let config = EnableMetricsPush {
         bearer_token: bearer_token.to_string(),
         config: MetricsPushConfig {
-            push_url: "http://seal-proxy:8000/publish/metrics".to_string(),
+            push_url: "http://mydata-proxy:8000/publish/metrics".to_string(),
             push_interval: Duration::from_secs(5),
             labels: Some(HashMap::from([("host".to_string(), "demo".to_string())])),
         },
@@ -80,8 +79,8 @@ async fn main() -> Result<()> {
 
 struct Metrics {
     current_time: IntGauge,
-    seal_build_info: IntGaugeVec,
-    seal_request_duration: Histogram,
+    mydata_build_info: IntGaugeVec,
+    mydata_request_duration: Histogram,
 }
 
 fn create_metrics(registry: &Registry) -> Metrics {
@@ -92,22 +91,22 @@ fn create_metrics(registry: &Registry) -> Metrics {
     )
     .expect("metric registration should succeed");
 
-    let build_info_opts = prometheus::opts!("seal_build_info", "Seal binary info");
-    let seal_build_info = prometheus::register_int_gauge_vec_with_registry!(
+    let build_info_opts = prometheus::opts!("mydata_build_info", "MyData binary info");
+    let mydata_build_info = prometheus::register_int_gauge_vec_with_registry!(
         build_info_opts,
         &["version"],
         registry
     )
     .expect("metric registration should succeed");
 
-    let histogram_opts = prometheus::HistogramOpts::new("seal_request_duration", "Seal request duration")
+    let histogram_opts = prometheus::HistogramOpts::new("mydata_request_duration", "MyData request duration")
         .buckets(vec![0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0, f64::INFINITY]);
-    let seal_request_duration = prometheus::register_histogram_with_registry!(histogram_opts, registry).expect("metric registration should succeed");
+    let mydata_request_duration = prometheus::register_histogram_with_registry!(histogram_opts, registry).expect("metric registration should succeed");
 
     Metrics {
         current_time,
-        seal_build_info,
-        seal_request_duration,
+        mydata_build_info,
+        mydata_request_duration,
     }
 }
 
@@ -120,13 +119,13 @@ fn generate_metrics(metrics: &Metrics) {
 
     let version = "0.1.0";
     metrics
-        .seal_build_info
+        .mydata_build_info
         .with_label_values(&[version])
         .set(1);
 
     // populate histogram with random duration
     let duration = Duration::from_millis(rand::thread_rng().gen_range(1..10000));
-    metrics.seal_request_duration.observe(duration.as_secs_f64());
+    metrics.mydata_request_duration.observe(duration.as_secs_f64());
 
 }
 

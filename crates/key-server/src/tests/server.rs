@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -12,7 +11,7 @@ use crate::key_server_options::RetryConfig;
 use crate::metrics::Metrics;
 use crate::start_server_background_tasks;
 use crate::mys_rpc_client::MysRpcClient;
-use crate::tests::SealTestCluster;
+use crate::tests::MyDataTestCluster;
 
 use crate::signed_message::signed_request;
 use crate::{app, time, Certificate, DefaultEncoding, FetchKeyRequest};
@@ -32,7 +31,7 @@ use http_body_util::BodyExt;
 use hyper_util::client::legacy::Client;
 use hyper_util::rt::TokioExecutor;
 use rand::thread_rng;
-use seal_sdk::{signed_message, FetchKeyResponse};
+use mydata_sdk::{signed_message, FetchKeyResponse};
 use serde_json::from_slice;
 use serde_json::json;
 use serde_json::Value;
@@ -46,7 +45,7 @@ use tokio::net::TcpListener;
 
 #[tokio::test]
 async fn test_get_latest_checkpoint_timestamp() {
-    let tc = SealTestCluster::new(0).await;
+    let tc = MyDataTestCluster::new(0).await;
 
     let tolerance = 20000;
     let timestamp = get_latest_checkpoint_timestamp(MysRpcClient::new(
@@ -68,7 +67,7 @@ async fn test_get_latest_checkpoint_timestamp() {
 
 #[tokio::test]
 async fn test_timestamp_updater() {
-    let mut tc = SealTestCluster::new(0).await;
+    let mut tc = MyDataTestCluster::new(0).await;
     tc.add_open_server().await;
 
     let mut receiver = tc
@@ -100,7 +99,7 @@ async fn test_timestamp_updater() {
 #[traced_test]
 #[tokio::test]
 async fn test_rgp_updater() {
-    let mut tc = SealTestCluster::new(0).await;
+    let mut tc = MyDataTestCluster::new(0).await;
     tc.add_open_server().await;
 
     let mut receiver = tc.server().spawn_reference_gas_price_updater(None).await.0;
@@ -114,7 +113,7 @@ async fn test_rgp_updater() {
 // Tests that the server background task monitor can catch background task errors and panics.
 #[tokio::test]
 async fn test_server_background_task_monitor() {
-    let mut tc = SealTestCluster::new(0).await;
+    let mut tc = MyDataTestCluster::new(0).await;
     tc.add_open_server().await;
 
     let metrics_registry = Registry::default();

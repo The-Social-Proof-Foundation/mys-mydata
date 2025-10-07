@@ -1,6 +1,6 @@
-# Seal pricing
+# MyData pricing
 
-- **Choose your own key server providers:** Seal supports a decentralized network of independent key servers. Builders can select any combination of providers to form their preferred threshold configuration for encryption and decryption.
+- **Choose your own key server providers:** MyData supports a decentralized network of independent key servers. Builders can select any combination of providers to form their preferred threshold configuration for encryption and decryption.
 - **Transparent pricing & features:** Each key server provider sets their own pricing and rate limits based on their service model. Builders can evaluate and choose based on what best fits their application needs.
 - **Curated discoverability:** This documentation will list a verified set of providers along with available links to their configuration details, terms, and pricing, so you can integrate with confidence.
 
@@ -16,51 +16,51 @@ Please refer to [this document](./KeyServerOps.md) for detailed information on `
 - Mysten Labs: The following key servers are configured using the `Open` mode and freely available for experimentation, development, and testing. A source-based rate limit is configured which can not be changed for any client.
     - mysten-testnet-1 (`Open` mode)
         - Object Id: `0x73d05d62c18d9374e3ea529e8e0ed6161da1a141a94d3f76ae3fe4e99356db75`
-        - URL: https://seal-key-server-testnet-1.mystenlabs.com
+        - URL: https://mydata-key-server-testnet-1.mystenlabs.com
     - mysten-testnet-2 (`Open` mode)
         - Object Id: `0xf5d14a81a982144ae441cd7d64b09027f116a468bd36e7eca494f750591623c8`
-        - https://seal-key-server-testnet-2.mystenlabs.com
-- [Ruby Nodes](https://seal.rubynodes.io):
+        - https://mydata-key-server-testnet-2.mystenlabs.com
+- [Ruby Nodes](https://mydata.rubynodes.io):
     - `Open` mode
-        - URL: https://seal-testnet.api.rubynodes.io
+        - URL: https://mydata-testnet.api.rubynodes.io
         - Object Id: `0x6068c0acb197dddbacd4746a9de7f025b2ed5a5b6c1b1ab44dade4426d141da2`
     - `Permissioned` mode
         - URL: https://starter-eu-central-1.api.rubynodes.io
         - Contact the provider to configure your client and generate a unique key server object id
 - [NodeInfra](https://nodeinfra.com/):
     - `Open` mode
-        - URL: https://open-seal-testnet.nodeinfra.com
+        - URL: https://open-mydata-testnet.nodeinfra.com
         - Object Id: `0x5466b7df5c15b508678d51496ada8afab0d6f70a01c10613123382b1b8131007`
     - `Permissioned` mode
-        - URL: https://seal-testnet.nodeinfra.com
+        - URL: https://mydata-testnet.nodeinfra.com
         - Contact the provider to configure your client and generate a unique key server object id
 - [Studio Mirai](https://x.com/_StudioMirai):
     - `Open` mode
-        - URL: https://open.key-server-testnet.seal.mirai.cloud
+        - URL: https://open.key-server-testnet.mydata.mirai.cloud
         - Object Id: `0x164ac3d2b3b8694b8181c13f671950004765c23f270321a45fdd04d40cccf0f2`
     - `Permissioned` mode
-        - URL: https://private.key-server.testnet.seal.mirai.cloud
+        - URL: https://private.key-server.testnet.mydata.mirai.cloud
         - Contact the provider to configure your client and generate a unique key server object id
 - [Overclock](https://x.com/OverclockMys):
     - `Open` mode
-        - URL: https://seal-testnet-open.overclock.run
+        - URL: https://mydata-testnet-open.overclock.run
         - Object Id: `0x9c949e53c36ab7a9c484ed9e8b43267a77d4b8d70e79aa6b39042e3d4c434105`
     - `Permissioned` mode
-        - URL: https://seal-testnet-permissioned.overclock.run
+        - URL: https://mydata-testnet-permissioned.overclock.run
         - Contact the provider to configure your client and generate a unique key server object id
 - [H2O Nodes](https://www.h2o-nodes.com/)
     - `Open` mode
-        - URL: https://seal-open.mys-testnet.h2o-nodes.com
+        - URL: https://mydata-open.mys-testnet.h2o-nodes.com
         - Object Id: `0x39cef09b24b667bc6ed54f7159d82352fe2d5dd97ca9a5beaa1d21aa774f25a2`
     - `Permissioned` mode
-        - URL: https://seal-permissioned.mys-testnet.h2o-nodes.com
+        - URL: https://mydata-permissioned.mys-testnet.h2o-nodes.com
         - Contact the provider to configure your client and generate a unique key server object id
 - [Triton One](https://x.com/triton_one)
     - `Open` mode
-        - URL: https://seal.testnet.mys.rpcpool.com
+        - URL: https://mydata.testnet.mys.rpcpool.com
         - Object Id: `0x4cded1abeb52a22b6becb42a91d3686a4c901cf52eee16234214d0b5b2da4c46`
     - `Permissioned` mode
-        - URL: https://seal.testnet.mys.rpcpool.com/private
+        - URL: https://mydata.testnet.mys.rpcpool.com/private
         - Contact the provider to configure your client and generate a unique key server object id
 
 !!! note
@@ -73,11 +73,11 @@ Please refer to [this document](./KeyServerOps.md) for detailed information on `
 
 Please reach out to these verified key server providers:
 
-- [Ruby Nodes](https://seal.rubynodes.io/pricing)
+- [Ruby Nodes](https://mydata.rubynodes.io/pricing)
 - [NodeInfra](https://docs.nodeinfra.com/)
-- [Overclock](https://seal.overclock.run/)
+- [Overclock](https://mydata.overclock.run/)
 - [Studio Mirai](https://mirai.cloud/)
 - [H2O Nodes](https://www.h2o-nodes.com/devs)
 - [Triton One](https://triton.one/mys)
 - [Enoki by Mysten Labs](https://enoki.mystenlabs.com/)
-    - Sign up for Enoki, create your account, and request Seal key server access using the form in your dashboard.
+    - Sign up for Enoki, create your account, and request MyData key server access using the form in your dashboard.

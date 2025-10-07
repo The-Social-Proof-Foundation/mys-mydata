@@ -50,7 +50,7 @@ prometheus_closure_metric = { workspace = true }
 hyper-util = "0.1.10"
 http-body-util = "0.1.2"
 futures = "0.3"
-seal-sdk = { path = "../seal-sdk" }
+mydata-sdk = { path = "../mydata-sdk" }
 
 [dev-dependencies]
 tracing-test = "0.2.5"

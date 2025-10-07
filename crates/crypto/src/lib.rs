@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -29,16 +28,16 @@ pub mod tss;
 mod utils;
 
 /// The domain separation tag for generating H1(id)
-pub const DST_ID: &[u8] = b"MYS-SEAL-IBE-BLS12381-00";
+pub const DST_ID: &[u8] = b"MYS-MYDATA-IBE-BLS12381-00";
 
 /// The domain separation tag for the hash-to-group unction used in PoP.
-pub const DST_POP: &[u8] = b"MYS-SEAL-IBE-BLS12381-POP-00";
+pub const DST_POP: &[u8] = b"MYS-MYDATA-IBE-BLS12381-POP-00";
 
 /// Domain separation tag for [ibe::kdf]
-pub const DST_KDF: &[u8] = b"MYS-SEAL-IBE-BLS12381-H2-00";
+pub const DST_KDF: &[u8] = b"MYS-MYDATA-IBE-BLS12381-H2-00";
 
 /// Domain separation tag for [crate::derive_key]
-pub const DST_DERIVE_KEY: &[u8] = b"MYS-SEAL-IBE-BLS12381-H3-00";
+pub const DST_DERIVE_KEY: &[u8] = b"MYS-MYDATA-IBE-BLS12381-H3-00";
 
 pub const KEY_SIZE: usize = 32;
 
@@ -104,12 +103,12 @@ pub enum EncryptionInput {
 ///
 /// @param package_id The package id.
 /// @param id The id.
-/// @param key_servers The seal key services to use for the encryption.
+/// @param key_servers The mydata key services to use for the encryption.
 /// @param public_keys The public keys of the key servers.
 /// @param threshold The threshold for the TSS.
 /// @param encryption_input The encryption input.
 /// @return The encrypted object and the derived symmetric key used for the encryption.
-pub fn seal_encrypt(
+pub fn mydata_encrypt(
     package_id: ObjectID,
     id: Vec<u8>,
     key_servers: Vec<ObjectID>,
@@ -198,11 +197,11 @@ pub fn seal_encrypt(
 ///  - Reconstruct the AES key from the shares,
 ///  - Decrypt the ciphertext using the AES key.
 ///
-/// @param encrypted_object The encrypted object. See `seal_encrypt`.
+/// @param encrypted_object The encrypted object. See `mydata_encrypt`.
 /// @param user_secret_keys The user secret keys. It's assumed that these are validated. Otherwise, the decryption will fail or, eg. in the case of using `Plain` mode, the derived key will be wrong.
 /// @param public_keys The public keys of the key servers. If provided, all shares will be decrypted and checked for consistency.
 /// @return The decrypted plaintext or, if `Plain` mode was used, the derived key.
-pub fn seal_decrypt(
+pub fn mydata_decrypt(
     encrypted_object: &EncryptedObject,
     user_secret_keys: &IBEUserSecretKeys,
     public_keys: Option<&IBEPublicKeys>,
@@ -513,7 +512,7 @@ mod tests {
         let public_keys =
             IBEPublicKeys::BonehFranklinBLS12381(keypairs.iter().map(|(_, pk)| *pk).collect_vec());
 
-        let encrypted = seal_encrypt(
+        let encrypted = mydata_encrypt(
             mys_sdk_types::ObjectId::new(package_id.into_bytes()),
             id,
             services_ids.clone(),
@@ -534,7 +533,7 @@ mod tests {
                 .map(|(s, kp)| (s, ibe::extract(&kp.0, &full_id)))
                 .collect(),
         );
-        let decrypted = seal_decrypt(&encrypted, &user_secret_keys, Some(&public_keys)).unwrap();
+        let decrypted = mydata_decrypt(&encrypted, &user_secret_keys, Some(&public_keys)).unwrap();
 
         assert_eq!(data, decrypted.as_slice());
 
@@ -547,7 +546,7 @@ mod tests {
                     Some(aad) => aad.push(0),
                 }
                 assert!(
-                    seal_decrypt(&modified_encrypted, &user_secret_keys, Some(&public_keys))
+                    mydata_decrypt(&modified_encrypted, &user_secret_keys, Some(&public_keys))
                         .is_err()
                 );
             }
@@ -578,7 +577,7 @@ mod tests {
         let public_keys =
             IBEPublicKeys::BonehFranklinBLS12381(keypairs.iter().map(|(_, pk)| *pk).collect_vec());
 
-        let encrypted = seal_encrypt(
+        let encrypted = mydata_encrypt(
             mys_sdk_types::ObjectId::new(package_id.into_bytes()),
             id,
             services_ids.clone(),
@@ -599,7 +598,7 @@ mod tests {
                 .map(|(s, kp)| (s, ibe::extract(&kp.0, &full_id)))
                 .collect(),
         );
-        let decrypted = seal_decrypt(&encrypted, &user_secret_keys, Some(&public_keys)).unwrap();
+        let decrypted = mydata_decrypt(&encrypted, &user_secret_keys, Some(&public_keys)).unwrap();
 
         assert_eq!(data, decrypted.as_slice());
 
@@ -612,7 +611,7 @@ mod tests {
                     Some(aad) => aad.push(0),
                 }
                 assert!(
-                    seal_decrypt(&modified_encrypted, &user_secret_keys, Some(&public_keys))
+                    mydata_decrypt(&modified_encrypted, &user_secret_keys, Some(&public_keys))
                         .is_err()
                 );
             }
@@ -640,7 +639,7 @@ mod tests {
         let public_keys =
             IBEPublicKeys::BonehFranklinBLS12381(keypairs.iter().map(|(_, pk)| *pk).collect_vec());
 
-        let (encrypted, key) = seal_encrypt(
+        let (encrypted, key) = mydata_encrypt(
             mys_sdk_types::ObjectId::new(package_id.into_bytes()),
             id,
             services_ids.clone(),
@@ -658,7 +657,7 @@ mod tests {
 
         assert_eq!(
             key.to_vec(),
-            seal_decrypt(
+            mydata_decrypt(
                 &encrypted,
                 &IBEUserSecretKeys::BonehFranklinBLS12381(user_secret_keys),
                 Some(&public_keys),
@@ -706,7 +705,7 @@ mod tests {
             .map(|(s, k)| (s, ibe::extract(&k, &full_id)))
             .collect();
 
-        let decrypted = seal_decrypt(
+        let decrypted = mydata_decrypt(
             &encryption,
             &IBEUserSecretKeys::BonehFranklinBLS12381(user_secret_keys),
             Some(&IBEPublicKeys::BonehFranklinBLS12381(public_keys)),
@@ -738,7 +737,7 @@ mod tests {
         let pks = keypairs.iter().map(|(_, pk)| *pk).collect_vec();
         let public_keys = IBEPublicKeys::BonehFranklinBLS12381(pks.clone());
 
-        let encrypted = seal_encrypt_and_modify_first_share(
+        let encrypted = mydata_encrypt_and_modify_first_share(
             package_id,
             id.clone(),
             services.clone(),
@@ -761,7 +760,7 @@ mod tests {
             .unwrap();
 
         // Decryption fails with all shares
-        assert!(seal_decrypt(
+        assert!(mydata_decrypt(
             &encrypted,
             &IBEUserSecretKeys::BonehFranklinBLS12381(HashMap::from(usks)),
             Some(&public_keys),
@@ -772,14 +771,14 @@ mod tests {
         let usks = IBEUserSecretKeys::BonehFranklinBLS12381(HashMap::from([usks[1], usks[2]]));
 
         // Decryption with the last two, valid, shares succeeds.
-        assert_eq!(seal_decrypt(&encrypted, &usks, None).unwrap(), data);
+        assert_eq!(mydata_decrypt(&encrypted, &usks, None).unwrap(), data);
 
         // But not if we also check the share consistency
-        assert!(seal_decrypt(&encrypted, &usks, Some(&public_keys))
+        assert!(mydata_decrypt(&encrypted, &usks, Some(&public_keys))
             .is_err_and(|e| e == GeneralError("Inconsistent shares".to_string())));
     }
 
-    fn seal_encrypt_and_modify_first_share(
+    fn mydata_encrypt_and_modify_first_share(
         package_id: ObjectID,
         id: Vec<u8>,
         key_servers: Vec<ObjectID>,

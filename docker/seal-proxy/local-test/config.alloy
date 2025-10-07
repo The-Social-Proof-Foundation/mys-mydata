@@ -1,7 +1,7 @@
-// scrape http://seal-proxy:8001/metrics for histogram data
-prometheus.scrape "seal_proxy" {
+// scrape http://mydata-proxy:8001/metrics for histogram data
+prometheus.scrape "mydata_proxy" {
   targets = [
-    {"__address__" = "seal-proxy:8001"},
+    {"__address__" = "mydata-proxy:8001"},
   ]
   forward_to = [prometheus.remote_write.local.receiver]
   scrape_interval = "15s"

@@ -1,9 +1,8 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::tests::externals::get_key;
-use crate::tests::SealTestCluster;
+use crate::tests::MyDataTestCluster;
 use mys_sdk::{json::MysJsonValue, rpc_types::ObjectChange};
 use mys_types::base_types::{ObjectDigest, SequenceNumber};
 use mys_types::{
@@ -18,7 +17,7 @@ use tracing_test::traced_test;
 #[traced_test]
 #[tokio::test]
 async fn test_pd() {
-    let mut tc = SealTestCluster::new(2).await;
+    let mut tc = MyDataTestCluster::new(2).await;
     tc.add_open_server().await;
 
     let (package_id, _) = tc.publish("patterns").await;
@@ -151,7 +150,7 @@ async fn pd_create_ptb(
     builder.programmable_move_call(
         package_id,
         Identifier::new("private_data").unwrap(),
-        Identifier::new("seal_approve").unwrap(),
+        Identifier::new("mydata_approve").unwrap(),
         vec![],
         vec![id, pd],
     );

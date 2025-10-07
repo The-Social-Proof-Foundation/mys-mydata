@@ -1,9 +1,8 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
 use super::externals::get_key;
-use crate::tests::SealTestCluster;
+use crate::tests::MyDataTestCluster;
 use serde_json::json;
 use std::path::PathBuf;
 use mys_sdk::{json::MysJsonValue, rpc_types::ObjectChange};
@@ -19,7 +18,7 @@ use tracing_test::traced_test;
 #[traced_test]
 #[tokio::test]
 async fn test_whitelist() {
-    let mut tc = SealTestCluster::new(2).await;
+    let mut tc = MyDataTestCluster::new(2).await;
     tc.add_open_server().await;
     tc.add_open_server().await;
 
@@ -50,7 +49,7 @@ async fn test_whitelist() {
 #[traced_test]
 #[tokio::test]
 async fn test_whitelist_with_upgrade() {
-    let mut tc = SealTestCluster::new(1).await;
+    let mut tc = MyDataTestCluster::new(1).await;
     tc.add_open_server().await;
 
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/tests/whitelist_v1");
@@ -187,7 +186,7 @@ pub fn whitelist_create_ptb(
     builder.programmable_move_call(
         package_id,
         Identifier::new("whitelist").unwrap(),
-        Identifier::new("seal_approve").unwrap(),
+        Identifier::new("mydata_approve").unwrap(),
         vec![],
         vec![ids, list],
     );

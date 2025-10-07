@@ -6,7 +6,7 @@ edition = "2024.beta" # edition = "legacy" to use legacy (pre-2024) Move
 
 [dependencies]
 Mys = { git = "https://github.com/The-Social-Proof-Foundation/mys-core.git", subdir = "crates/mys-framework/packages/mys-framework", rev = "testnet-v1.52.1" }
-seal = { local = "../seal" }
+mydata = { local = "../mydata" }
 
 # For remote import, use the `{ git = "...", subdir = "...", rev = "..." }`.
 # Revision can be a branch, a tag, and a commit hash.

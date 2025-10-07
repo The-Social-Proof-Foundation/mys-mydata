@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -17,20 +16,20 @@ use tower_http::{
 };
 use tracing::Level;
 
-// Seal proxy prom registry, to avoid collisions with prometheus in some
+// MyData proxy prom registry, to avoid collisions with prometheus in some
 // shared counters from other crates, namely mys-proxy
-pub(crate) static SEAL_PROXY_PROM_REGISTRY: Lazy<Registry> = Lazy::new(Registry::new);
+pub(crate) static MYDATA_PROXY_PROM_REGISTRY: Lazy<Registry> = Lazy::new(Registry::new);
 
 /// Function to access the registry
-pub fn seal_proxy_prom_registry() -> &'static Registry {
-    &SEAL_PROXY_PROM_REGISTRY
+pub fn mydata_proxy_prom_registry() -> &'static Registry {
+    &MYDATA_PROXY_PROM_REGISTRY
 }
-/// macro to register metrics into the seal proxy (local) default registry
+/// macro to register metrics into the mydata proxy (local) default registry
 #[macro_export]
 macro_rules! register_metric {
     ($metric:expr) => {{
         let m = $metric;
-        $crate::metrics::seal_proxy_prom_registry()
+        $crate::metrics::mydata_proxy_prom_registry()
             .register(Box::new(m.clone()))
             .unwrap();
         m
@@ -81,7 +80,7 @@ fn uptime_metric(registry: &Registry) {
 /// Creates a new http server that has as a sole purpose to expose
 /// and endpoint that prometheus agent can use to poll for the metrics.
 pub fn start_prometheus_server(listener: TcpListener) {
-    let registry = seal_proxy_prom_registry();
+    let registry = mydata_proxy_prom_registry();
 
     uptime_metric(registry);
 

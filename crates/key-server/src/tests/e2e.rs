@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -10,22 +9,22 @@ use crate::master_keys::MasterKeys;
 use crate::mys_rpc_client::MysRpcClient;
 use crate::tests::externals::get_key;
 use crate::tests::whitelist::{add_user_to_whitelist, create_whitelist, whitelist_create_ptb};
-use crate::tests::SealTestCluster;
+use crate::tests::MyDataTestCluster;
 use crate::time::from_mins;
 use crate::types::Network;
 use crate::{DefaultEncoding, Server};
 use crypto::elgamal::encrypt;
 use crypto::ibe::{extract, generate_seed, public_key_from_master_key, UserSecretKey};
 use crypto::{
-    create_full_id, ibe, seal_decrypt, seal_encrypt, EncryptionInput, IBEPublicKeys,
+    create_full_id, ibe, mydata_decrypt, mydata_encrypt, EncryptionInput, IBEPublicKeys,
     IBEUserSecretKeys,
 };
 use fastcrypto::encoding::Encoding;
 use fastcrypto::serde_helpers::ToFromByteArray;
 use futures::future::join_all;
 use rand::thread_rng;
-use seal_sdk::types::{DecryptionKey, FetchKeyResponse};
-use seal_sdk::{genkey, seal_decrypt_all_objects};
+use mydata_sdk::types::{DecryptionKey, FetchKeyResponse};
+use mydata_sdk::{genkey, mydata_decrypt_all_objects};
 use semver::VersionReq;
 use std::collections::HashMap;
 use std::str::FromStr;
@@ -39,7 +38,7 @@ use tracing_test::traced_test;
 #[traced_test]
 #[tokio::test]
 async fn test_e2e() {
-    let mut tc = SealTestCluster::new(1).await;
+    let mut tc = MyDataTestCluster::new(1).await;
     tc.add_open_servers(3).await;
 
     let (examples_package_id, _) = tc.publish("patterns").await;
@@ -69,7 +68,7 @@ async fn test_e2e() {
 
     // Encrypt a message
     let message = b"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-    let encryption = seal_encrypt(
+    let encryption = mydata_encrypt(
         mys_sdk_types::ObjectId::new(examples_package_id.into_bytes()),
         whitelist.to_vec(),
         services_ids.clone(),
@@ -98,7 +97,7 @@ async fn test_e2e() {
     .await;
 
     // Decrypt the message
-    let decryption = seal_decrypt(
+    let decryption = mydata_decrypt(
         &encryption,
         &IBEUserSecretKeys::BonehFranklinBLS12381(services_ids.into_iter().zip(usks).collect()),
         Some(&pks),
@@ -111,7 +110,7 @@ async fn test_e2e() {
 #[traced_test]
 #[tokio::test]
 async fn test_e2e_decrypt_all_objects() {
-    let mut tc = SealTestCluster::new(1).await;
+    let mut tc = MyDataTestCluster::new(1).await;
     tc.add_open_servers(3).await;
 
     let (examples_package_id, _) = tc.publish("patterns").await;
@@ -143,7 +142,7 @@ async fn test_e2e_decrypt_all_objects() {
     let id1 = vec![1, 2, 3, 4];
     let id2 = vec![5, 6, 7, 8];
 
-    let encryption1 = seal_encrypt(
+    let encryption1 = mydata_encrypt(
         mys_sdk_types::ObjectId::new(examples_package_id.into_bytes()),
         id1.clone(),
         services_ids.clone(),
@@ -157,7 +156,7 @@ async fn test_e2e_decrypt_all_objects() {
     .unwrap()
     .0;
 
-    let encryption2 = seal_encrypt(
+    let encryption2 = mydata_encrypt(
         mys_sdk_types::ObjectId::new(examples_package_id.into_bytes()),
         id2.clone(),
         services_ids.clone(),
@@ -177,7 +176,7 @@ async fn test_e2e_decrypt_all_objects() {
     let full_id1 = create_full_id(&examples_package_id.into_bytes(), &id1);
     let full_id2 = create_full_id(&examples_package_id.into_bytes(), &id2);
 
-    let mut seal_responses = Vec::new();
+    let mut mydata_responses = Vec::new();
     let mut server_pk_map = HashMap::new();
 
     for (service_id, server) in tc.servers.iter() {
@@ -204,7 +203,7 @@ async fn test_e2e_decrypt_all_objects() {
         };
 
         let service_id_sdk = mys_sdk_types::ObjectId::new(service_id.into_bytes());
-        seal_responses.push((service_id_sdk, response));
+        mydata_responses.push((service_id_sdk, response));
 
         let public_key = public_key_from_master_key(master_key);
         server_pk_map.insert(service_id_sdk, public_key);
@@ -213,7 +212,7 @@ async fn test_e2e_decrypt_all_objects() {
     let encrypted_objects = vec![encryption1, encryption2];
 
     let decrypted =
-        seal_decrypt_all_objects(&eg_sk, &seal_responses, &encrypted_objects, &server_pk_map)
+        mydata_decrypt_all_objects(&eg_sk, &mydata_responses, &encrypted_objects, &server_pk_map)
             .unwrap();
 
     assert_eq!(decrypted.len(), 2);
@@ -235,7 +234,7 @@ async fn test_e2e_permissioned() {
         .await;
 
     // Publish the patterns package
-    let package_id = SealTestCluster::publish_internal(&cluster, "patterns")
+    let package_id = MyDataTestCluster::publish_internal(&cluster, "patterns")
         .await
         .0;
 
@@ -307,7 +306,7 @@ async fn test_e2e_permissioned() {
         .collect::<Vec<_>>();
     // Encrypt a message
     let message = b"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-    let encryption = seal_encrypt(
+    let encryption = mydata_encrypt(
         mys_sdk_types::ObjectId::new(package_id.into_bytes()),
         whitelist.to_vec(),
         services_ids.to_vec(),
@@ -333,7 +332,7 @@ async fn test_e2e_permissioned() {
         .unwrap();
 
     // Decrypt the message
-    let decryption = seal_decrypt(
+    let decryption = mydata_decrypt(
         &encryption,
         &IBEUserSecretKeys::BonehFranklinBLS12381(services_ids.into_iter().zip([usk]).collect()),
         Some(&pks),
@@ -360,7 +359,7 @@ async fn test_e2e_imported_key() {
         .await;
 
     // Publish the patterns two times.
-    let package_id = SealTestCluster::publish_internal(&cluster, "patterns")
+    let package_id = MyDataTestCluster::publish_internal(&cluster, "patterns")
         .await
         .0;
     // Generate a key pair for the key server
@@ -406,7 +405,7 @@ async fn test_e2e_imported_key() {
         .collect::<Vec<_>>();
     // Encrypt a message
     let message = b"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-    let encryption = seal_encrypt(
+    let encryption = mydata_encrypt(
         mys_sdk_types::ObjectId::new(package_id.into_bytes()),
         whitelist.to_vec(),
         services_ids.clone().to_vec(),
@@ -429,7 +428,7 @@ async fn test_e2e_imported_key() {
         .unwrap();
 
     // Decrypt the message
-    let decryption = seal_decrypt(
+    let decryption = mydata_decrypt(
         &encryption,
         &IBEUserSecretKeys::BonehFranklinBLS12381(
             services_ids.clone().into_iter().zip([usk]).collect(),
@@ -467,7 +466,7 @@ async fn test_e2e_imported_key() {
         .unwrap();
 
     // Decrypt the message
-    let decryption = seal_decrypt(
+    let decryption = mydata_decrypt(
         &encryption,
         &IBEUserSecretKeys::BonehFranklinBLS12381(services_ids.into_iter().zip([usk]).collect()),
         Some(&pks),

@@ -1,4 +1,3 @@
-// Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -92,7 +91,7 @@ fun check_policy(caller: address, id: vector<u8>, wl: &Whitelist): bool {
     wl.addresses.contains(caller)
 }
 
-entry fun seal_approve(id: vector<u8>, wl: &Whitelist, ctx: &TxContext) {
+entry fun mydata_approve(id: vector<u8>, wl: &Whitelist, ctx: &TxContext) {
     assert!(check_policy(ctx.sender(), id, wl), ENoAccess);
 }
 

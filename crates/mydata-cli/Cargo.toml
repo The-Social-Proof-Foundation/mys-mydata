@@ -1,9 +1,13 @@
 [package]
-name = "seal-cli"
+name = "mydata-cli"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
+
+[[bin]]
+name = "mydata"
+path = "src/main.rs"
 
 [dependencies]
 clap.workspace = true
@@ -20,4 +24,4 @@ mys-sdk-types = { workspace = true }
 mys_types = { workspace = true }
 
 crypto = { path = "../crypto" }
-seal-sdk = { path = "../seal-sdk" }
+mydata-sdk = { path = "../mydata-sdk" }
