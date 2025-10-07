@@ -2,10 +2,14 @@
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
+use axum::{extract::State, middleware};
 use prometheus::{
-    register_histogram_with_registry, register_int_counter_vec_with_registry,
-    register_int_counter_with_registry, Histogram, IntCounter, IntCounterVec, Registry,
+    register_histogram_vec_with_registry, register_histogram_with_registry,
+    register_int_counter_vec_with_registry, register_int_counter_with_registry,
+    register_int_gauge_vec_with_registry, Histogram, HistogramVec, IntCounter, IntCounterVec,
+    IntGaugeVec, Registry,
 };
+use std::sync::Arc;
 use std::time::Instant;
 
 #[derive(Debug)]
@@ -39,6 +43,21 @@ pub(crate) struct Metrics {
 
     /// Total number of requests per number of ids
     pub requests_per_number_of_ids: Histogram,
+
+    /// HTTP request latency by route and status code
+    pub http_request_duration_millis: HistogramVec,
+
+    /// HTTP request count by route and status code
+    pub http_requests_total: IntCounterVec,
+
+    /// HTTP request in flight by route
+    pub http_request_in_flight: IntGaugeVec,
+
+    /// MySocial RPC request duration by label
+    pub mys_rpc_request_duration_millis: HistogramVec,
+
+    /// Dry run gas cost per package
+    pub dry_run_gas_cost_per_package: HistogramVec,
 }
 
 impl Metrics {
@@ -66,7 +85,7 @@ impl Metrics {
             checkpoint_timestamp_delay: register_histogram_with_registry!(
                 "checkpoint_timestamp_delay",
                 "Delay of timestamp of the latest checkpoint",
-                buckets(0.0, 120000.0, 1000.0),
+                buckets(0.0, 150000.0, 1000.0),
                 registry
             )
             .unwrap(),
@@ -109,6 +128,44 @@ impl Metrics {
                 "requests_per_number_of_ids",
                 "Total number of requests per number of ids",
                 buckets(0.0, 5.0, 1.0),
+                registry
+            )
+            .unwrap(),
+            http_request_duration_millis: register_histogram_vec_with_registry!(
+                "http_request_duration_millis",
+                "HTTP request duration in milliseconds",
+                &["route", "status"],
+                default_fast_call_duration_buckets(),
+                registry
+            )
+            .unwrap(),
+            http_requests_total: register_int_counter_vec_with_registry!(
+                "http_requests_total",
+                "Total number of HTTP requests",
+                &["route", "status"],
+                registry
+            )
+            .unwrap(),
+            http_request_in_flight: register_int_gauge_vec_with_registry!(
+                "http_request_in_flight",
+                "Number of HTTP requests in flight",
+                &["route"],
+                registry
+            )
+            .unwrap(),
+            mys_rpc_request_duration_millis: register_histogram_vec_with_registry!(
+                "mys_rpc_request_duration_millis",
+                "MySocial RPC request duration and status in milliseconds",
+                &["method", "status"],
+                default_fast_call_duration_buckets(),
+                registry
+            )
+            .unwrap(),
+            dry_run_gas_cost_per_package: register_histogram_vec_with_registry!(
+                "dry_run_gas_cost_per_package",
+                "Dry run gas cost per package",
+                &["package"],
+                buckets(0.0, 500_000_000.0, 5_000_000.0),
                 registry
             )
             .unwrap(),
@@ -172,4 +229,40 @@ fn default_external_call_duration_buckets() -> Vec<f64> {
 
 fn default_fast_call_duration_buckets() -> Vec<f64> {
     buckets(10.0, 100.0, 10.0)
+}
+
+/// Middleware that tracks metrics for HTTP requests and response status.
+pub(crate) async fn metrics_middleware(
+    State(metrics): State<Arc<Metrics>>,
+    request: axum::extract::Request,
+    next: middleware::Next,
+) -> axum::response::Response {
+    let route = request.uri().path().to_string();
+    let start = std::time::Instant::now();
+
+    metrics
+        .http_request_in_flight
+        .with_label_values(&[&route])
+        .inc();
+
+    let response = next.run(request).await;
+
+    metrics
+        .http_request_in_flight
+        .with_label_values(&[&route])
+        .dec();
+
+    let duration = start.elapsed().as_millis() as f64;
+    let status = response.status().as_str().to_string();
+
+    metrics
+        .http_request_duration_millis
+        .with_label_values(&[&route, &status])
+        .observe(duration);
+    metrics
+        .http_requests_total
+        .with_label_values(&[&route, &status])
+        .inc();
+
+    response
 }

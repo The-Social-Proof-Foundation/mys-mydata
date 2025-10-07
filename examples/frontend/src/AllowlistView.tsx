@@ -6,15 +6,13 @@ import { useSignPersonalMessage, useMysClient } from '@socialproof/dapp-kit';
 import { useNetworkVariable } from './networkConfig';
 import { AlertDialog, Button, Card, Dialog, Flex, Grid } from '@radix-ui/themes';
 import { fromHex } from '@socialproof/mys/utils';
-import { MysGraphQLClient } from '@socialproof/mys/graphql';
 import { Transaction } from '@socialproof/mys/transactions';
 import {
-  getAllowlistedKeyServers,
   KeyServerConfig,
   SealClient,
   SessionKey,
-  type SessionKeyType,
-} from '@socialproof/seal';
+  type ExportedSessionKey
+} from '@mysten/seal';
 import { useParams } from 'react-router-dom';
 import { downloadAndDecrypt, getObjectExplorerLink, MoveCallConstructor } from './utils';
 import { set, get } from 'idb-keyval';
@@ -36,17 +34,19 @@ function constructMoveCall(packageId: string, allowlistId: string): MoveCallCons
   };
 }
 
-const Feeds: React.FC<{ mysAddress: string }> = ({ mysAddress }) => {
-  const mysClient = useMysClient();
+const Feeds: React.FC<{ suiAddress: string }> = ({ suiAddress }) => {
+  const suiClient = useMysClient();
+  const serverObjectIds = ["0x73d05d62c18d9374e3ea529e8e0ed6161da1a141a94d3f76ae3fe4e99356db75", "0xf5d14a81a982144ae441cd7d64b09027f116a468bd36e7eca494f750591623c8"];
   const client = new SealClient({
-    mysClient,
-    serverConfigs: getAllowlistedKeyServers('testnet').map((id) => ({
+    suiClient,
+    serverConfigs: serverObjectIds.map((id) => ({
       objectId: id,
       weight: 1,
     })),
     verifyKeyServers: false,
   });
   const packageId = useNetworkVariable('packageId');
+  const mvrName = useNetworkVariable('mvrName');
 
   const [feed, setFeed] = useState<FeedData>();
   const [decryptedFileUrls, setDecryptedFileUrls] = useState<string[]>([]);
@@ -68,14 +68,14 @@ const Feeds: React.FC<{ mysAddress: string }> = ({ mysAddress }) => {
 
     // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
-  }, [id, mysClient, packageId]); // Add all dependencies that getFeed uses
+  }, [id, suiClient, packageId]); // Add all dependencies that getFeed uses
 
   async function getFeed() {
-    const allowlist = await mysClient.getObject({
+    const allowlist = await suiClient.getObject({
       id: id!,
       options: { showContent: true },
     });
-    const encryptedObjects = await mysClient
+    const encryptedObjects = await suiClient
       .getDynamicFields({
         parentId: id!,
       })
@@ -90,7 +90,7 @@ const Feeds: React.FC<{ mysAddress: string }> = ({ mysAddress }) => {
   }
 
   const onView = async (blobIds: string[], allowlistId: string) => {
-    const imported: SessionKeyType = await get('sessionKey');
+    const imported: ExportedSessionKey = await get('sessionKey');
 
     if (imported) {
       try {
@@ -102,13 +102,13 @@ const Feeds: React.FC<{ mysAddress: string }> = ({ mysAddress }) => {
         if (
           currentSessionKey &&
           !currentSessionKey.isExpired() &&
-          currentSessionKey.getAddress() === mysAddress
+          currentSessionKey.getAddress() === suiAddress
         ) {
           const moveCallConstructor = constructMoveCall(packageId, allowlistId);
           downloadAndDecrypt(
             blobIds,
             currentSessionKey,
-            mysClient,
+            suiClient,
             client,
             moveCallConstructor,
             setError,
@@ -125,11 +125,12 @@ const Feeds: React.FC<{ mysAddress: string }> = ({ mysAddress }) => {
 
     set('sessionKey', null);
 
-    const sessionKey = new SessionKey({
-      address: mysAddress,
+    const sessionKey = await SessionKey.create({
+      address: suiAddress,
       packageId,
       ttlMin: TTL_MIN,
-      mysClient: new MysClient({ url: getFullnodeUrl('testnet') }),
+      suiClient,
+      mvrName,
     });
 
     try {
@@ -144,7 +145,7 @@ const Feeds: React.FC<{ mysAddress: string }> = ({ mysAddress }) => {
             await downloadAndDecrypt(
               blobIds,
               sessionKey,
-              mysClient,
+              suiClient,
               client,
               moveCallConstructor,
               setError,

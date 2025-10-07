@@ -4,8 +4,9 @@
 
 use crate::tests::externals::sign;
 use crate::tests::SealTestCluster;
+use crate::time::current_epoch_time;
 use crate::valid_ptb::ValidPtb;
-use crate::{current_epoch_time, InternalError};
+use crate::InternalError;
 use crypto::elgamal;
 use fastcrypto::ed25519::Ed25519KeyPair;
 use fastcrypto::traits::KeyPair;
@@ -14,14 +15,16 @@ use mys_types::{
     base_types::ObjectID,
     programmable_transaction_builder::ProgrammableTransactionBuilder,
     transaction::{ObjectArg, ProgrammableTransaction},
-    Identifier, MYS_CLOCK_OBJECT_ID,
+    Identifier, SUI_CLOCK_OBJECT_ID,
 };
 use tracing_test::traced_test;
 
 #[traced_test]
 #[tokio::test]
 async fn test_tle_policy() {
-    let mut tc = SealTestCluster::new(1, 1).await;
+    let mut tc = SealTestCluster::new(1).await;
+    tc.add_open_server().await;
+
     let (package_id, _) = tc.publish("patterns").await;
 
     {
@@ -49,10 +52,11 @@ async fn test_tle_policy() {
                 1000,
                 None,
                 None,
+                None,
             )
             .await;
         assert!(result.is_ok());
-        let key_ids = result.unwrap();
+        let (_pkg_id, key_ids) = result.unwrap();
         assert_eq!(key_ids.len(), 2);
         assert_ne!(key_ids[0], key_ids[1]);
     }
@@ -81,16 +85,18 @@ async fn test_tle_policy() {
                 1000,
                 None,
                 None,
+                None,
             )
             .await;
-        assert_eq!(result, Err(InternalError::NoAccess));
+        assert!(matches!(result, Err(InternalError::NoAccess(_))));
     }
 }
 
 #[traced_test]
 #[tokio::test]
 async fn test_tle_certificate() {
-    let mut tc = SealTestCluster::new(1, 1).await;
+    let mut tc = SealTestCluster::new(1).await;
+    tc.add_open_server().await;
     let (package_id, _) = tc.publish("patterns").await;
 
     let ptb = tle_create_ptb(package_id, 1);
@@ -110,7 +116,9 @@ async fn test_tle_certificate() {
     // valid cert should work
     let result = tc
         .server()
-        .check_request(&valid_ptb, &pk, &vk, &req_sig, &cert, 1000, None, None)
+        .check_request(
+            &valid_ptb, &pk, &vk, &req_sig, &cert, 1000, None, None, None,
+        )
         .await;
     assert!(result.is_ok());
 
@@ -126,6 +134,7 @@ async fn test_tle_certificate() {
             &req_sig,
             &invalid_cert,
             1000,
+            None,
             None,
             None,
         )
@@ -145,6 +154,7 @@ async fn test_tle_certificate() {
             1000,
             None,
             None,
+            None,
         )
         .await;
     assert_eq!(result.err(), Some(InternalError::InvalidSignature));
@@ -162,6 +172,7 @@ async fn test_tle_certificate() {
             1000,
             None,
             None,
+            None,
         )
         .await;
     assert_eq!(result.err(), Some(InternalError::InvalidSignature));
@@ -171,7 +182,9 @@ async fn test_tle_certificate() {
     let (cert, req_sig) = sign(&package_id, &ptb, &pk, &vk, &tc.users[0].keypair, 1, 1);
     let result = tc
         .server()
-        .check_request(&valid_ptb, &pk, &vk, &req_sig, &cert, 1000, None, None)
+        .check_request(
+            &valid_ptb, &pk, &vk, &req_sig, &cert, 1000, None, None, None,
+        )
         .await;
     assert_eq!(result.err(), Some(InternalError::InvalidCertificate));
 
@@ -188,7 +201,9 @@ async fn test_tle_certificate() {
     );
     let result = tc
         .server()
-        .check_request(&valid_ptb, &pk, &vk, &req_sig, &cert, 1000, None, None)
+        .check_request(
+            &valid_ptb, &pk, &vk, &req_sig, &cert, 1000, None, None, None,
+        )
         .await;
     assert_eq!(result.err(), Some(InternalError::InvalidCertificate));
 }
@@ -196,7 +211,9 @@ async fn test_tle_certificate() {
 #[traced_test]
 #[tokio::test]
 async fn test_tle_signed_request() {
-    let mut tc = SealTestCluster::new(1, 1).await;
+    let mut tc = SealTestCluster::new(1).await;
+    tc.add_open_server().await;
+
     let (package_id, _) = tc.publish("patterns").await;
 
     let ptb = tle_create_ptb(package_id, 1);
@@ -214,14 +231,18 @@ async fn test_tle_signed_request() {
     let valid_ptb = ValidPtb::try_from(ptb).unwrap();
     let result = tc
         .server()
-        .check_request(&valid_ptb, &pk, &vk, &req_sig, &cert, 1000, None, None)
+        .check_request(
+            &valid_ptb, &pk, &vk, &req_sig, &cert, 1000, None, None, None,
+        )
         .await;
     assert!(result.is_ok());
 
     let (_, pk2, vk2) = elgamal::genkey(&mut thread_rng());
     let result = tc
         .server()
-        .check_request(&valid_ptb, &pk2, &vk2, &req_sig, &cert, 1000, None, None)
+        .check_request(
+            &valid_ptb, &pk2, &vk2, &req_sig, &cert, 1000, None, None, None,
+        )
         .await;
     assert_eq!(result.err(), Some(InternalError::InvalidSessionSignature));
 }
@@ -236,7 +257,7 @@ fn tle_create_ptb(package_id: ObjectID, time: u64) -> ProgrammableTransaction {
     let id_0 = builder.pure(get_tle_id(0)).unwrap(); // used to test ptb with 2 commands
     let clock = builder
         .obj(ObjectArg::SharedObject {
-            id: MYS_CLOCK_OBJECT_ID,
+            id: SUI_CLOCK_OBJECT_ID,
             initial_shared_version: 1.into(),
             mutable: false,
         })

@@ -22,7 +22,7 @@ interface AllowlistProps {
 }
 
 export function Service({ setRecipientAllowlist, setCapId }: AllowlistProps) {
-  const mysClient = useMysClient();
+  const suiClient = useMysClient();
   const packageId = useNetworkVariable('packageId');
   const currentAccount = useCurrentAccount();
   const [service, setService] = useState<Service>();
@@ -31,7 +31,7 @@ export function Service({ setRecipientAllowlist, setCapId }: AllowlistProps) {
   useEffect(() => {
     async function getService() {
       // load the service for the given id
-      const service = await mysClient.getObject({
+      const service = await suiClient.getObject({
         id: id!,
         options: { showContent: true },
       });
@@ -46,7 +46,7 @@ export function Service({ setRecipientAllowlist, setCapId }: AllowlistProps) {
       setRecipientAllowlist(id!);
 
       // load all caps
-      const res = await mysClient.getOwnedObjects({
+      const res = await suiClient.getOwnedObjects({
         owner: currentAccount?.address!,
         options: {
           showContent: true,

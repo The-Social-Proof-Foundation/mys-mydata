@@ -24,7 +24,7 @@ interface AllowlistProps {
 
 export function Allowlist({ setRecipientAllowlist, setCapId }: AllowlistProps) {
   const packageId = useNetworkVariable('packageId');
-  const mysClient = useMysClient();
+  const suiClient = useMysClient();
   const currentAccount = useCurrentAccount();
   const [allowlist, setAllowlist] = useState<Allowlist>();
   const { id } = useParams();
@@ -33,7 +33,7 @@ export function Allowlist({ setRecipientAllowlist, setCapId }: AllowlistProps) {
   useEffect(() => {
     async function getAllowlist() {
       // load all caps
-      const res = await mysClient.getOwnedObjects({
+      const res = await suiClient.getOwnedObjects({
         owner: currentAccount?.address!,
         options: {
           showContent: true,
@@ -59,7 +59,7 @@ export function Allowlist({ setRecipientAllowlist, setCapId }: AllowlistProps) {
       setInnerCapId(capId[0]);
 
       // load the allowlist for the given id
-      const allowlist = await mysClient.getObject({
+      const allowlist = await suiClient.getObject({
         id: id!,
         options: { showContent: true },
       });
@@ -86,7 +86,7 @@ export function Allowlist({ setRecipientAllowlist, setCapId }: AllowlistProps) {
 
   const { mutate: signAndExecute } = useSignAndExecuteTransaction({
     execute: async ({ bytes, signature }) =>
-      await mysClient.executeTransactionBlock({
+      await suiClient.executeTransactionBlock({
         transactionBlock: bytes,
         signature,
         options: {

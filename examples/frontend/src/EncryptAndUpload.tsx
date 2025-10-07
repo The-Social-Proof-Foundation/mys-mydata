@@ -6,19 +6,18 @@ import { Transaction } from '@socialproof/mys/transactions';
 import { useNetworkVariable } from './networkConfig';
 import { useSignAndExecuteTransaction, useMysClient } from '@socialproof/dapp-kit';
 import { Button, Card, Flex, Spinner, Text } from '@radix-ui/themes';
-import { getAllowlistedKeyServers, SealClient } from '@socialproof/seal';
+import { SealClient } from '@mysten/seal';
 import { fromHex, toHex } from '@socialproof/mys/utils';
-import { MysGraphQLClient } from '@socialproof/mys/graphql';
 
 export type Data = {
   status: string;
   blobId: string;
   endEpoch: string;
-  mysRefType: string;
-  mysRef: string;
-  mysBaseUrl: string;
+  suiRefType: string;
+  suiRef: string;
+  suiBaseUrl: string;
   blobUrl: string;
-  mysUrl: string;
+  suiUrl: string;
   isImage: string;
 };
 
@@ -41,15 +40,16 @@ export function WalrusUpload({ policyObject, cap_id, moduleName }: WalrusUploadP
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [selectedService, setSelectedService] = useState<string>('service1');
 
-  const mys_VIEW_TX_URL = `https://mysscan.xyz/testnet/tx`;
-  const mys_VIEW_OBJECT_URL = `https://mysscan.xyz/testnet/object`;
+  const SUI_VIEW_TX_URL = `https://suiscan.xyz/testnet/tx`;
+  const SUI_VIEW_OBJECT_URL = `https://suiscan.xyz/testnet/object`;
 
   const NUM_EPOCH = 1;
   const packageId = useNetworkVariable('packageId');
-  const mysClient = useMysClient();
+  const suiClient = useMysClient();
+  const serverObjectIds = ["0x73d05d62c18d9374e3ea529e8e0ed6161da1a141a94d3f76ae3fe4e99356db75", "0xf5d14a81a982144ae441cd7d64b09027f116a468bd36e7eca494f750591623c8"];
   const client = new SealClient({
-    mysClient,
-    serverConfigs: getAllowlistedKeyServers('testnet').map((id) => ({
+    suiClient,
+    serverConfigs: serverObjectIds.map((id) => ({
       objectId: id,
       weight: 1,
     })),
@@ -109,7 +109,7 @@ export function WalrusUpload({ policyObject, cap_id, moduleName }: WalrusUploadP
 
   const { mutate: signAndExecute } = useSignAndExecuteTransaction({
     execute: async ({ bytes, signature }) =>
-      await mysClient.executeTransactionBlock({
+      await suiClient.executeTransactionBlock({
         transactionBlock: bytes,
         signature,
         options: {
@@ -174,11 +174,11 @@ export function WalrusUpload({ policyObject, cap_id, moduleName }: WalrusUploadP
         status: 'Already certified',
         blobId: storage_info.alreadyCertified.blobId,
         endEpoch: storage_info.alreadyCertified.endEpoch,
-        mysRefType: 'Previous Mys Certified Event',
-        mysRef: storage_info.alreadyCertified.event.txDigest,
-        mysBaseUrl: mys_VIEW_TX_URL,
+        suiRefType: 'Previous MySocial Certified Event',
+        suiRef: storage_info.alreadyCertified.event.txDigest,
+        suiBaseUrl: SUI_VIEW_TX_URL,
         blobUrl: getAggregatorUrl(`/v1/blobs/${storage_info.alreadyCertified.blobId}`),
-        mysUrl: `${mys_VIEW_OBJECT_URL}/${storage_info.alreadyCertified.event.txDigest}`,
+        suiUrl: `${SUI_VIEW_OBJECT_URL}/${storage_info.alreadyCertified.event.txDigest}`,
         isImage: media_type.startsWith('image'),
       };
     } else if ('newlyCreated' in storage_info) {
@@ -186,11 +186,11 @@ export function WalrusUpload({ policyObject, cap_id, moduleName }: WalrusUploadP
         status: 'Newly created',
         blobId: storage_info.newlyCreated.blobObject.blobId,
         endEpoch: storage_info.newlyCreated.blobObject.storage.endEpoch,
-        mysRefType: 'Associated Mys Object',
-        mysRef: storage_info.newlyCreated.blobObject.id,
-        mysBaseUrl: mys_VIEW_OBJECT_URL,
+        suiRefType: 'Associated MySocial Object',
+        suiRef: storage_info.newlyCreated.blobObject.id,
+        suiBaseUrl: SUI_VIEW_OBJECT_URL,
         blobUrl: getAggregatorUrl(`/v1/blobs/${storage_info.newlyCreated.blobObject.blobId}`),
-        mysUrl: `${mys_VIEW_OBJECT_URL}/${storage_info.newlyCreated.blobObject.id}`,
+        suiUrl: `${SUI_VIEW_OBJECT_URL}/${storage_info.newlyCreated.blobObject.id}`,
         isImage: media_type.startsWith('image'),
       };
     } else {
@@ -300,13 +300,13 @@ export function WalrusUpload({ policyObject, cap_id, moduleName }: WalrusUploadP
               </dd>
               <dd>
                 <a
-                  href={info.mysUrl}
+                  href={info.suiUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ textDecoration: 'underline' }}
-                  aria-label="View Mys object details"
+                  aria-label="View MySocial object details"
                 >
-                  Mys Object
+                  MySocial Object
                 </a>
               </dd>
             </dl>
@@ -319,7 +319,7 @@ export function WalrusUpload({ policyObject, cap_id, moduleName }: WalrusUploadP
           disabled={!info || !file || policyObject === ''}
           aria-label="Encrypt and upload file"
         >
-          Second step: Associate file to Mys object
+          Second step: Associate file to MySocial object
         </Button>
       </Flex>
     </Card>

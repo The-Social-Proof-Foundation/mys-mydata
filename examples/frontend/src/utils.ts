@@ -2,7 +2,7 @@
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
-import { SealClient, SessionKey, NoAccessError, EncryptedObject } from '@socialproof/seal';
+import { SealClient, SessionKey, NoAccessError, EncryptedObject } from '@mysten/seal';
 import { MysClient } from '@socialproof/mys/client';
 import { Transaction } from '@socialproof/mys/transactions';
 import React from 'react';
@@ -12,7 +12,7 @@ export type MoveCallConstructor = (tx: Transaction, id: string) => void;
 export const downloadAndDecrypt = async (
   blobIds: string[],
   sessionKey: SessionKey,
-  mysClient: MysClient,
+  suiClient: MysClient,
   sealClient: SealClient,
   moveCallConstructor: (tx: Transaction, id: string) => void,
   setError: (error: string | null) => void,
@@ -67,7 +67,7 @@ export const downloadAndDecrypt = async (
     const ids = batch.map((enc) => EncryptedObject.parse(new Uint8Array(enc)).id);
     const tx = new Transaction();
     ids.forEach((id) => moveCallConstructor(tx, id));
-    const txBytes = await tx.build({ client: mysClient, onlyTransactionKind: true });
+    const txBytes = await tx.build({ client: suiClient, onlyTransactionKind: true });
     try {
       await sealClient.fetchKeys({ ids, txBytes, sessionKey, threshold: 2 });
     } catch (err) {
@@ -88,7 +88,7 @@ export const downloadAndDecrypt = async (
     const fullId = EncryptedObject.parse(new Uint8Array(encryptedData)).id;
     const tx = new Transaction();
     moveCallConstructor(tx, fullId);
-    const txBytes = await tx.build({ client: mysClient, onlyTransactionKind: true });
+    const txBytes = await tx.build({ client: suiClient, onlyTransactionKind: true });
     try {
       // Note that all keys are fetched above, so this only local decryption is done
       const decryptedFile = await sealClient.decrypt({
@@ -121,7 +121,7 @@ export const getObjectExplorerLink = (id: string): React.ReactElement => {
   return React.createElement(
     'a',
     {
-      href: `https://testnet.mysvision.xyz/object/${id}`,
+      href: `https://testnet.suivision.xyz/object/${id}`,
       target: '_blank',
       rel: 'noopener noreferrer',
       style: { textDecoration: 'underline' },

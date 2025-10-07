@@ -87,7 +87,7 @@ entry fun seal_approve(id: vector<u8>, allowlist: &Allowlist, ctx: &TxContext) {
     assert!(approve_internal(ctx.sender(), id, allowlist), ENoAccess);
 }
 
-/// Encapsulate a blob into a Mys object and attach it to the allowlist
+/// Encapsulate a blob into a MySocial object and attach it to the allowlist
 public fun publish(allowlist: &mut Allowlist, cap: &Cap, blob_id: String) {
     assert!(cap.allowlist_id == object::id(allowlist), EInvalidCap);
     df::add(&mut allowlist.id, blob_id, MARKER);
@@ -95,11 +95,10 @@ public fun publish(allowlist: &mut Allowlist, cap: &Cap, blob_id: String) {
 
 #[test_only]
 public fun new_allowlist_for_testing(ctx: &mut TxContext): Allowlist {
-    use std::string::utf8;
 
     Allowlist {
         id: object::new(ctx),
-        name: utf8(b"test"),
+        name: b"test".to_string(),
         list: vector::empty(),
     }
 }

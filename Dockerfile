@@ -1,46 +1,33 @@
-# Multi-stage build for key-server
-FROM rust:1.82 as builder
+# Start with a Rust base image
+FROM rust:1.87-bullseye  AS builder
 
-# Set the working directory
-WORKDIR /app
+ARG PROFILE=release
 
-# Install build dependencies
-RUN apt-get update && apt-get install -y \
-    pkg-config \
-    libssl-dev \
-    && rm -rf /var/lib/apt/lists/*
+WORKDIR work
 
-# Copy the workspace files
-COPY Cargo.toml Cargo.lock ./
-COPY crates ./crates
+COPY ./crates ./crates
+COPY ./Cargo.toml ./
 
-# Build with release optimizations and limited parallelism to avoid memory issues
-ENV CARGO_BUILD_JOBS=2
-RUN cargo build --release --bin key-server
+ARG GIT_REVISION
+ENV GIT_REVISION=$GIT_REVISION
 
-# Runtime stage
-FROM debian:bookworm-slim
+RUN cargo build --bin key-server --profile $PROFILE --config net.git-fetch-with-cli=true
+FROM debian:bullseye-slim AS runtime
 
-# Install runtime dependencies
-RUN apt-get update && apt-get install -y \
-    ca-certificates \
-    libssl3 \
-    && rm -rf /var/lib/apt/lists/*
+EXPOSE 2024
 
-# Create non-root user
-RUN useradd -r -s /bin/false keyserver
+RUN apt-get update && apt-get install -y cmake clang libpq5 ca-certificates libpq-dev postgresql
 
-# Copy the binary from builder stage  
-COPY --from=builder /app/target/release/key-server /usr/local/bin/key-server
+COPY --from=builder /work/target/release/key-server /opt/key-server/bin/
 
-# Set ownership
-RUN chown keyserver:keyserver /usr/local/bin/key-server
+# Handle all environment variables
+RUN echo '#!/bin/bash\n\
+# Export all environment variables\n\
+for var in $(env | cut -d= -f1); do\n\
+    export "$var"\n\
+done\n\
+\n\
+exec /opt/key-server/bin/key-server "$@"' > /opt/key-server/entrypoint.sh && \
+    chmod +x /opt/key-server/entrypoint.sh
 
-# Switch to non-root user
-USER keyserver
-
-# Expose port
-EXPOSE 8080
-
-# Run the application
-CMD ["key-server"] 
+ENTRYPOINT ["/opt/key-server/entrypoint.sh"]

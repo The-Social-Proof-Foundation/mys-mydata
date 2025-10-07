@@ -11,8 +11,8 @@ import {
 import { useNetworkVariable } from './networkConfig';
 import { AlertDialog, Button, Card, Dialog, Flex } from '@radix-ui/themes';
 import { coinWithBalance, Transaction } from '@socialproof/mys/transactions';
-import { fromHex, mys_CLOCK_OBJECT_ID } from '@socialproof/mys/utils';
-import { SealClient, SessionKey, getAllowlistedKeyServers } from '@socialproof/seal';
+import { fromHex, SUI_CLOCK_OBJECT_ID } from '@socialproof/mys/utils';
+import { SealClient, SessionKey } from '@mysten/seal';
 import { useParams } from 'react-router-dom';
 import { downloadAndDecrypt, getObjectExplorerLink, MoveCallConstructor } from './utils';
 import { getFullnodeUrl, MysClient } from '@socialproof/mys/client';
@@ -28,13 +28,14 @@ export interface FeedData {
   subscriptionId?: string;
 }
 
-const FeedsToSubscribe: React.FC<{ mysAddress: string }> = ({ mysAddress }) => {
-  const mysClient = useMysClient();
+const FeedsToSubscribe: React.FC<{ suiAddress: string }> = ({ suiAddress }) => {
+  const suiClient = useMysClient();
   const { id } = useParams();
+  const serverObjectIds = ["0x73d05d62c18d9374e3ea529e8e0ed6161da1a141a94d3f76ae3fe4e99356db75", "0xf5d14a81a982144ae441cd7d64b09027f116a468bd36e7eca494f750591623c8"];
 
   const client = new SealClient({
-    mysClient,
-    serverConfigs: getAllowlistedKeyServers('testnet').map((id) => ({
+    suiClient,
+    serverConfigs: serverObjectIds.map((id) => ({
       objectId: id,
       weight: 1,
     })),
@@ -53,7 +54,7 @@ const FeedsToSubscribe: React.FC<{ mysAddress: string }> = ({ mysAddress }) => {
 
   const { mutate: signAndExecute } = useSignAndExecuteTransaction({
     execute: async ({ bytes, signature }) =>
-      await mysClient.executeTransactionBlock({
+      await suiClient.executeTransactionBlock({
         transactionBlock: bytes,
         signature,
         options: {
@@ -74,26 +75,26 @@ const FeedsToSubscribe: React.FC<{ mysAddress: string }> = ({ mysAddress }) => {
 
     // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
-  }, [id, mysAddress, packageId, mysClient]);
+  }, [id, suiAddress, packageId, suiClient]);
 
   async function getFeed() {
     // get all encrypted objects for the given service id
-    const encryptedObjects = await mysClient
+    const encryptedObjects = await suiClient
       .getDynamicFields({
         parentId: id!,
       })
       .then((res) => res.data.map((obj) => obj.name.value as string));
 
     // get the current service object
-    const service = await mysClient.getObject({
+    const service = await suiClient.getObject({
       id: id!,
       options: { showContent: true },
     });
     const service_fields = (service.data?.content as { fields: any })?.fields || {};
 
     // get all subscriptions for the given mys address
-    const res = await mysClient.getOwnedObjects({
-      owner: mysAddress,
+    const res = await suiClient.getOwnedObjects({
+      owner: suiAddress,
       options: {
         showContent: true,
         showType: true,
@@ -104,7 +105,7 @@ const FeedsToSubscribe: React.FC<{ mysAddress: string }> = ({ mysAddress }) => {
     });
 
     // get the current timestamp
-    const clock = await mysClient.getObject({
+    const clock = await suiClient.getObject({
       id: '0x6',
       options: { showContent: true },
     });
@@ -148,7 +149,7 @@ const FeedsToSubscribe: React.FC<{ mysAddress: string }> = ({ mysAddress }) => {
           tx.pure.vector('u8', fromHex(id)),
           tx.object(subscriptionId),
           tx.object(serviceId),
-          tx.object(mys_CLOCK_OBJECT_ID),
+          tx.object(SUI_CLOCK_OBJECT_ID),
         ],
       });
     };
@@ -166,7 +167,7 @@ const FeedsToSubscribe: React.FC<{ mysAddress: string }> = ({ mysAddress }) => {
           balance: BigInt(fee),
         }),
         tx.object(serviceId),
-        tx.object(mys_CLOCK_OBJECT_ID),
+        tx.object(SUI_CLOCK_OBJECT_ID),
       ],
     });
     tx.moveCall({
@@ -200,13 +201,13 @@ const FeedsToSubscribe: React.FC<{ mysAddress: string }> = ({ mysAddress }) => {
     if (
       currentSessionKey &&
       !currentSessionKey.isExpired() &&
-      currentSessionKey.getAddress() === mysAddress
+      currentSessionKey.getAddress() === suiAddress
     ) {
       const moveCallConstructor = constructMoveCall(packageId, serviceId, subscriptionId);
       downloadAndDecrypt(
         blobIds,
         currentSessionKey,
-        mysClient,
+        suiClient,
         client,
         moveCallConstructor,
         setError,
@@ -218,11 +219,11 @@ const FeedsToSubscribe: React.FC<{ mysAddress: string }> = ({ mysAddress }) => {
     }
     setCurrentSessionKey(null);
 
-    const sessionKey = new SessionKey({
-      address: mysAddress,
+    const sessionKey = await SessionKey.create({
+      address: suiAddress,
       packageId,
       ttlMin: TTL_MIN,
-      mysClient: new MysClient({ url: getFullnodeUrl('testnet') }),
+      suiClient,
     });
 
     try {
@@ -241,7 +242,7 @@ const FeedsToSubscribe: React.FC<{ mysAddress: string }> = ({ mysAddress }) => {
             await downloadAndDecrypt(
               blobIds,
               sessionKey,
-              mysClient,
+              suiClient,
               client,
               moveCallConstructor,
               setError,

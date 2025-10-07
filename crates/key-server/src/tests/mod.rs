@@ -2,20 +2,27 @@
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::externals::{add_latest, add_package};
+use crate::externals::{add_package, add_upgraded_package};
+use crate::key_server_options::{KeyServerOptions, RetryConfig, RpcConfig, ServerMode};
+use crate::master_keys::MasterKeys;
+use crate::mys_rpc_client::MysRpcClient;
+use crate::tests::KeyServerType::Open;
+use crate::time::from_mins;
 use crate::types::Network;
-use crate::Server;
+use crate::{DefaultEncoding, Server};
 use crypto::ibe;
+use crypto::ibe::public_key_from_master_key;
 use fastcrypto::ed25519::Ed25519KeyPair;
-use fastcrypto::groups::bls12381::G1Element;
-use fastcrypto::groups::GroupElement;
+use fastcrypto::encoding::Encoding;
 use fastcrypto::serde_helpers::ToFromByteArray;
 use futures::future::join_all;
 use rand::thread_rng;
 use semver::VersionReq;
 use serde_json::json;
+use std::collections::HashMap;
 use std::path::PathBuf;
 use std::str::FromStr;
+use std::time::Duration;
 use mys_move_build::BuildConfig;
 use mys_sdk::json::MysJsonValue;
 use mys_sdk::rpc_types::{ObjectChange, MysData, MysObjectDataOptions};
@@ -28,20 +35,17 @@ mod e2e;
 mod externals;
 mod pd;
 mod tle;
-mod whitelist;
+pub(crate) mod whitelist;
 
 mod server;
 
-/// Wrapper for Mys test cluster with some Seal specific functionality.
+/// Wrapper for MySocial test cluster with some Seal specific functionality.
 pub(crate) struct SealTestCluster {
     cluster: TestCluster,
-    pub(crate) servers: Vec<SealKeyServer>,
+    #[allow(dead_code)]
+    pub(crate) registry: (ObjectID, ObjectID),
+    pub(crate) servers: Vec<(ObjectID, Server)>,
     pub(crate) users: Vec<SealUser>,
-}
-
-pub(crate) struct SealKeyServer {
-    server: Server,
-    public_key: ibe::PublicKey,
 }
 
 pub(crate) struct SealUser {
@@ -49,66 +53,122 @@ pub(crate) struct SealUser {
     keypair: Ed25519KeyPair,
 }
 
+/// Key server types allowed in tests
+pub enum KeyServerType {
+    Open(ibe::MasterKey),
+    Permissioned {
+        seed: Vec<u8>,
+        package_ids: Vec<ObjectID>,
+    },
+}
+
 impl SealTestCluster {
-    /// Create a new SealTestCluster with the given number of servers and users.
-    /// Key servers are not registered by default. Use `register_key_server` to register them.
-    pub async fn new(servers: usize, users: usize) -> Self {
+    /// Create a new SealTestCluster with the given number users. To add servers, use the `add_server` method.
+    pub async fn new(users: usize) -> Self {
         let cluster = TestClusterBuilder::new()
             .with_num_validators(1)
             .build()
             .await;
-
-        let mut rng = thread_rng();
-
-        // TODO: We could publish the seal module and register key servers on-chain, but no tests need this right now so to speed up tests we don't do it.
-        let servers = (0..servers)
-            .map(|_| ibe::generate_key_pair(&mut rng))
-            .map(|(master_key, public_key)| SealKeyServer {
-                server: Server {
-                    mys_client: cluster.mys_client().clone(),
-                    network: Network::TestCluster,
-                    master_key,
-                    key_server_object_id: ObjectID::ZERO,
-                    key_server_object_id_sig: G1Element::generator(),
-                    sdk_version_requirement: VersionReq::STAR,
-                },
-                public_key,
-            })
-            .collect();
-
-        let users = (0..users)
-            .map(|_| get_key_pair_from_rng(&mut rng))
-            .map(|(address, keypair)| SealUser { address, keypair })
-            .collect();
-
+        let registry = Self::publish_internal(&cluster, "seal").await;
         Self {
             cluster,
-            servers,
-            users,
+            servers: vec![],
+            registry,
+            users: (0..users)
+                .map(|_| {
+                    let (address, keypair) = get_key_pair_from_rng(&mut thread_rng());
+                    SealUser { address, keypair }
+                })
+                .collect(),
         }
     }
 
-    /// Get a mutable reference to the [TestCluster].
-    pub fn get_mut(&mut self) -> &mut TestCluster {
-        &mut self.cluster
+    pub fn get_services(&self) -> Vec<ObjectID> {
+        self.servers.iter().map(|(id, _)| *id).collect()
     }
 
-    /// Get a reference to the first server. Panics if there are no servers.
+    /// Get a mutable reference to the [TestCluster].
+    pub fn test_cluster(&self) -> &TestCluster {
+        &self.cluster
+    }
+
+    pub async fn add_open_server(&mut self) {
+        let master_key = ibe::generate_key_pair(&mut thread_rng()).0;
+        let name = DefaultEncoding::encode(public_key_from_master_key(&master_key).to_byte_array());
+        self.add_server(Open(master_key), &name).await;
+    }
+
+    pub async fn add_open_servers(&mut self, num_servers: usize) {
+        for _ in 0..num_servers {
+            self.add_open_server().await;
+        }
+    }
+
+    pub async fn add_server(&mut self, server: KeyServerType, name: &str) {
+        match server {
+            Open(master_key) => {
+                let key_server_object_id = self
+                    .register_key_server(
+                        name,
+                        "http://localhost:8080", // Dummy URL, not used in this test
+                        public_key_from_master_key(&master_key),
+                    )
+                    .await;
+                let server = Server {
+                    mys_rpc_client: MysRpcClient::new(
+                        self.cluster.mys_client().clone(),
+                        RetryConfig::default(),
+                        None,
+                    ),
+                    master_keys: MasterKeys::Open { master_key },
+                    key_server_oid_to_pop: HashMap::new(),
+                    options: KeyServerOptions {
+                        network: Network::TestCluster,
+                        server_mode: ServerMode::Open {
+                            key_server_object_id,
+                        },
+                        metrics_host_port: 0,
+                        checkpoint_update_interval: Duration::from_secs(10),
+                        rgp_update_interval: Duration::from_secs(60),
+                        sdk_version_requirement: VersionReq::from_str(">=0.4.6").unwrap(),
+                        allowed_staleness: Duration::from_secs(120),
+                        session_key_ttl_max: from_mins(30),
+                        rpc_config: RpcConfig::default(),
+                        metrics_push_config: None,
+                    },
+                };
+                self.servers.push((key_server_object_id, server));
+            }
+            _ => panic!(),
+        };
+    }
+
     pub fn server(&self) -> &Server {
-        &self.servers[0].server
+        &self.servers[0].1
     }
 
     /// Publish the Move module in /move/<module> and return the package id and upgrade cap.
-    pub async fn publish(&mut self, module: &str) -> (ObjectID, ObjectID) {
+    pub async fn publish(&self, module: &str) -> (ObjectID, ObjectID) {
+        Self::publish_internal(&self.cluster, module).await
+    }
+
+    pub async fn publish_internal(cluster: &TestCluster, module: &str) -> (ObjectID, ObjectID) {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         path.extend(["..", "..", "move", module]);
-        let compiled_package = BuildConfig::new_for_testing().build(&path).unwrap();
+        Self::publish_path_internal(cluster, path).await
+    }
 
+    pub async fn publish_path(&self, path: PathBuf) -> (ObjectID, ObjectID) {
+        Self::publish_path_internal(&self.cluster, path).await
+    }
+
+    async fn publish_path_internal(cluster: &TestCluster, path: PathBuf) -> (ObjectID, ObjectID) {
+        let compiled_package = BuildConfig::new_for_testing().build(&path).unwrap();
         // Publish package
-        let builder = self.cluster.mys_client().transaction_builder();
+        let builder = cluster.mys_client().transaction_builder();
         let tx = builder
             .publish(
-                self.cluster.get_address_0(),
+                cluster.get_address_0(),
                 compiled_package.get_package_bytes(true),
                 compiled_package.get_dependency_storage_package_ids(),
                 None,
@@ -116,7 +176,7 @@ impl SealTestCluster {
             )
             .await
             .unwrap();
-        let response = self.cluster.sign_and_execute_transaction(&tx).await;
+        let response = cluster.sign_and_execute_transaction(&tx).await;
         assert!(response.status_ok().unwrap());
 
         let changes = response.object_changes.unwrap();
@@ -148,10 +208,8 @@ impl SealTestCluster {
         &mut self,
         package_id: ObjectID,
         upgrade_cap: ObjectID,
-        module: &str,
+        path: PathBuf,
     ) -> ObjectID {
-        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        path.extend(["..", "..", "move", module]);
         let compiled_package = BuildConfig::new_for_testing().build(&path).unwrap();
 
         // Publish package
@@ -185,16 +243,15 @@ impl SealTestCluster {
             .unwrap();
 
         // Add new package id to internal registry
-        add_latest(package_id, new_package_id);
+        add_upgraded_package(package_id, new_package_id);
 
         new_package_id
     }
 
     /// Register a key server with the given package id, description, url, and public key.
     /// Return the Object ID of the registered key server.
-    pub async fn register_key_server(
-        &mut self,
-        package_id: ObjectID,
+    async fn register_key_server(
+        &self,
         description: &str,
         url: &str,
         pk: ibe::PublicKey,
@@ -205,7 +262,7 @@ impl SealTestCluster {
             .transaction_builder()
             .move_call(
                 self.cluster.get_address_0(),
-                package_id,
+                self.registry.0,
                 "key_server",
                 "create_and_transfer_v1",
                 vec![],
@@ -303,8 +360,10 @@ impl SealTestCluster {
 
 #[tokio::test]
 async fn test_pkg_upgrade() {
-    let mut setup = SealTestCluster::new(1, 1).await;
-    let (package_id, upgrade_cap) = setup.publish("patterns").await;
-    let new_package_id = setup.upgrade(package_id, upgrade_cap, "patterns").await;
+    let mut setup = SealTestCluster::new(0).await;
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/tests/whitelist_v1");
+    let (package_id, upgrade_cap) = setup.publish_path(path).await;
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/tests/whitelist_v2");
+    let new_package_id = setup.upgrade(package_id, upgrade_cap, path).await;
     assert_ne!(package_id, new_package_id);
 }

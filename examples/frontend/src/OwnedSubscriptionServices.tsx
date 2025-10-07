@@ -24,14 +24,14 @@ export interface CardItem {
 export function AllServices() {
   const packageId = useNetworkVariable('packageId');
   const currentAccount = useCurrentAccount();
-  const mysClient = useMysClient();
+  const suiClient = useMysClient();
 
   const [cardItems, setCardItems] = useState<CardItem[]>([]);
 
   useEffect(() => {
     async function getCapObj() {
       // get all owned cap objects
-      const res = await mysClient.getOwnedObjects({
+      const res = await suiClient.getOwnedObjects({
         owner: currentAccount?.address!,
         options: {
           showContent: true,
@@ -54,7 +54,7 @@ export function AllServices() {
       // get all services of all the owned cap objects
       const cardItems: CardItem[] = await Promise.all(
         caps.map(async (cap) => {
-          const service = await mysClient.getObject({
+          const service = await suiClient.getObject({
             id: cap.service_id,
             options: { showContent: true },
           });

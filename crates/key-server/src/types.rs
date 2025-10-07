@@ -2,30 +2,23 @@
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
 
-use crypto::elgamal;
 use crypto::ibe;
+use serde::{Deserialize, Serialize};
 
 /// The Identity-based encryption types.
 pub type IbeMasterKey = ibe::MasterKey;
-type IbeDerivedKey = ibe::UserSecretKey;
-type IbePublicKey = ibe::PublicKey;
-
-/// ElGamal related types.
-pub type ElGamalPublicKey = elgamal::PublicKey<IbeDerivedKey>;
-pub type ElgamalEncryption = elgamal::Encryption<IbeDerivedKey>;
-pub type ElgamalVerificationKey = elgamal::VerificationKey<IbePublicKey>;
 
 /// Proof-of-possession of a key-servers master key.
 pub type MasterKeyPOP = ibe::ProofOfPossession;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub enum Network {
     Devnet,
     Testnet,
     Mainnet,
     Custom {
-        node_url: String,
-        graphql_url: String,
+        node_url: Option<String>,
+        use_default_mainnet_for_mvr: Option<bool>,
     },
     #[cfg(test)]
     TestCluster,
@@ -34,23 +27,15 @@ pub enum Network {
 impl Network {
     pub fn node_url(&self) -> String {
         match self {
-            Network::Devnet => "http://fullnode.devnet.mysocial.network:8082".into(),
-            Network::Testnet => "http://fullnode.testnet.mysocial.network:8082".into(),
-            Network::Mainnet => "http://fullnode.mainnet.mysocial.network:8082".into(),
-            Network::Custom { node_url, .. } => node_url.clone(),
+            Network::Devnet => "https://fullnode.devnet.mys.io:443".into(),
+            Network::Testnet => "https://fullnode.testnet.mys.io:443".into(),
+            Network::Mainnet => "https://fullnode.mainnet.mys.io:443".into(),
+            Network::Custom { node_url, .. } => node_url
+                .as_ref()
+                .expect("Custom network must have node_url set")
+                .clone(),
             #[cfg(test)]
             Network::TestCluster => panic!(), // Currently not used, but can be found from cluster.rpc_url() if needed
-        }
-    }
-
-    pub fn graphql_url(&self) -> String {
-        match self {
-            Network::Devnet => "https://devnet.mysocial.network/graphql".into(),
-            Network::Testnet => "https://mys-graphql-rpc-testnet.up.railway.app/graphql".into(),
-            Network::Mainnet => "https://mainnet.mysocial.network/graphql".into(),
-            Network::Custom { graphql_url, .. } => graphql_url.clone(),
-            #[cfg(test)]
-            Network::TestCluster => panic!("GraphQL is not available on test cluster"),
         }
     }
 
@@ -60,8 +45,8 @@ impl Network {
             "testnet" => Network::Testnet,
             "mainnet" => Network::Mainnet,
             "custom" => Network::Custom {
-                node_url: std::env::var("NODE_URL").expect("NODE_URL must be set"),
-                graphql_url: std::env::var("GRAPHQL_URL").expect("GRAPHQL_URL must be set"),
+                node_url: std::env::var("NODE_URL").ok(),
+                use_default_mainnet_for_mvr: None,
             },
             _ => panic!("Unknown network: {}", str),
         }

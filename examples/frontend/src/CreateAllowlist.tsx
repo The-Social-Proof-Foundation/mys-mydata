@@ -13,10 +13,10 @@ export function CreateAllowlist() {
   const navigate = useNavigate();
   const [name, setName] = useState('');
   const packageId = useNetworkVariable('packageId');
-  const mysClient = useMysClient();
+  const suiClient = useMysClient();
   const { mutate: signAndExecute } = useSignAndExecuteTransaction({
     execute: async ({ bytes, signature }) =>
-      await mysClient.executeTransactionBlock({
+      await suiClient.executeTransactionBlock({
         transactionBlock: bytes,
         signature,
         options: {

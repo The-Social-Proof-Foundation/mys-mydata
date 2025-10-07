@@ -1,33 +1,11 @@
 // Copyright (c), Mysten Labs, Inc.
 // Copyright (c), The Social Proof Foundation, LLC.
 // SPDX-License-Identifier: Apache-2.0
-use crate::types::{ElGamalPublicKey, ElgamalVerificationKey};
-use chrono::{DateTime, Utc};
-use fastcrypto::ed25519::Ed25519PublicKey;
+use seal_sdk::types::{ElGamalPublicKey, ElgamalVerificationKey};
 use serde::{Deserialize, Serialize};
-use mys_types::base_types::ObjectID;
 use mys_types::transaction::ProgrammableTransaction;
-use tracing::debug;
 
-/// The format of the personal message shown to the user.
-pub fn signed_message(
-    pkg_id: &ObjectID, // should use the original package id
-    vk: &Ed25519PublicKey,
-    creation_time: u64,
-    ttl_min: u16,
-) -> String {
-    let res = format!(
-        "Accessing keys of package {} for {} mins from {}, session key {}",
-        pkg_id.to_hex_uncompressed(), // pads with 0x and zeros
-        ttl_min,
-        DateTime::<Utc>::from_timestamp((creation_time / 1000) as i64, 0) // convert to seconds
-            .expect("tested that in the future"),
-        vk,
-    );
-    debug!("Signed message: {}", res.clone());
-    res
-}
-
+// TODO: Remove legacy once key-server crate uses mys-sdk-types.
 #[derive(Serialize, Deserialize)]
 struct RequestFormat {
     ptb: Vec<u8>,
@@ -35,6 +13,7 @@ struct RequestFormat {
     enc_verification_key: Vec<u8>,
 }
 
+// TODO: Remove legacy once key-server crate uses mys-sdk-types.
 pub fn signed_request(
     ptb: &ProgrammableTransaction,
     enc_key: &ElGamalPublicKey,
@@ -50,12 +29,13 @@ pub fn signed_request(
 
 #[cfg(test)]
 mod tests {
-    use crate::signed_message::{signed_message, signed_request};
+    use crate::signed_message::signed_request;
     use crypto::elgamal::genkey;
     use fastcrypto::ed25519::Ed25519KeyPair;
     use fastcrypto::traits::KeyPair;
     use rand::rngs::StdRng;
     use rand::SeedableRng;
+    use seal_sdk::signed_message;
     use std::str::FromStr;
     use mys_types::base_types::ObjectID;
     use mys_types::crypto::deterministic_random_account_key;
@@ -73,7 +53,29 @@ mod tests {
 
         let expected_output = "Accessing keys of package 0x0000c457b42d48924087ea3f22d35fd2fe9afdf5bdfe38cc51c0f14f3282f6d5 for 30 mins from 1970-01-19 18:42:28 UTC, session key DX2rNYyNrapO+gBJp1sHQ2VVsQo2ghm7aA9wVxNJ13U=";
 
-        let result = signed_message(&pkg_id, kp.public(), creation_time, ttl_min);
+        let result = signed_message(
+            pkg_id.to_hex_uncompressed(),
+            kp.public(),
+            creation_time,
+            ttl_min,
+        );
+        assert_eq!(result, expected_output);
+    }
+
+    #[test]
+    fn test_signed_message_mvr_regression() {
+        let (_, kp): (_, Ed25519KeyPair) = deterministic_random_account_key();
+        let creation_time = 1622548800; // Fixed timestamp
+        let ttl_min = 30;
+
+        let expected_output = "Accessing keys of package @my/package for 30 mins from 1970-01-19 18:42:28 UTC, session key DX2rNYyNrapO+gBJp1sHQ2VVsQo2ghm7aA9wVxNJ13U=";
+
+        let result = signed_message(
+            "@my/package".to_string(),
+            kp.public(),
+            creation_time,
+            ttl_min,
+        );
         assert_eq!(result, expected_output);
     }
 

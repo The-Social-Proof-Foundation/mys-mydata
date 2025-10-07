@@ -3,10 +3,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /// Owner private data pattern:
-/// - Anyone can encrypt any data and store it encrypted as a Mys object.
-/// - The owner of the Mys object can always decrypt the data.
+/// - Anyone can encrypt any data and store it encrypted as a MySocial object.
+/// - The owner of the MySocial object can always decrypt the data.
 ///
 /// Use cases that can be built on top of this: personal key storage, private NFTs.
+///
+/// This pattern does NOT implement versioning, please see other patterns for
+/// examples of versioning.
 ///
 module patterns::private_data;
 

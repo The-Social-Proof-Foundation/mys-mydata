@@ -14,6 +14,9 @@
 ///
 /// See a test below for an example of how to use this pattern with a whitelist.
 ///
+/// This pattern does NOT implement versioning, please see other patterns for
+/// examples of versioning.
+///
 module patterns::key_request {
     use std::{ascii::String, type_name};
     use mys::clock::Clock;

@@ -23,14 +23,14 @@ export interface CardItem {
 export function AllAllowlist() {
   const packageId = useNetworkVariable('packageId');
   const currentAccount = useCurrentAccount();
-  const mysClient = useMysClient();
+  const suiClient = useMysClient();
 
   const [cardItems, setCardItems] = useState<CardItem[]>([]);
 
   const getCapObj = useCallback(async () => {
     if (!currentAccount?.address) return;
 
-    const res = await mysClient.getOwnedObjects({
+    const res = await suiClient.getOwnedObjects({
       owner: currentAccount?.address,
       options: {
         showContent: true,
@@ -51,7 +51,7 @@ export function AllAllowlist() {
       .filter((item) => item !== null) as Cap[];
     const cardItems: CardItem[] = await Promise.all(
       caps.map(async (cap) => {
-        const allowlist = await mysClient.getObject({
+        const allowlist = await suiClient.getObject({
           id: cap.allowlist_id,
           options: { showContent: true },
         });
