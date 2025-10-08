@@ -19,6 +19,10 @@ REMOTE_WRITE_USERNAME = ""
 REMOTE_WRITE_PASSWORD = ""
 LABEL_NETWORK = "railway-production"
 LABEL_HOST = "mydata-proxy"
+KEY_SERVER_1_TOKEN = "key-server-1-token"
+KEY_SERVER_2_TOKEN = "key-server-2-token"
+KEY_SERVER_3_TOKEN = "key-server-3-token"
+SAMPLE_CLIENT_TOKEN = "sample-client-token"
 
 [[volumes]]
 name = "config"

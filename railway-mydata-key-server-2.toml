@@ -2,7 +2,7 @@
 builder = "NIXPACKS"
 
 [deploy]
-startCommand = "/opt/key-server/bin/key-server --config=key-server-config-railway.yaml"
+startCommand = "cargo run --bin key-server"
 healthcheckPath = "/health"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
@@ -16,7 +16,6 @@ NETWORK = "Testnet"
 SERVER_MODE = "Open"
 KEY_SERVER_OBJECT_ID = "0x0000000000000000000000000000000000000000000000000000000000005ea1"
 METRICS_HOST_PORT = "9184"
-METRICS_PUSH_BEARER_TOKEN = "key-server-2-token-placeholder"
 METRICS_PUSH_URL = "https://mydata-proxy-testnet.up.railway.app/publish/metrics"
 METRICS_PUSH_INTERVAL_SECS = "10"
 MASTER_KEY = "0x25e578903be963387a68e65f6ac0192536def94cd992805386497b8c27cee4ca"
