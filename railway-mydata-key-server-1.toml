@@ -2,7 +2,7 @@
 builder = "NIXPACKS"
 
 [deploy]
-startCommand = "/opt/key-server/bin/key-server --config=key-server-config.yaml"
+startCommand = "/opt/key-server/bin/key-server --config=key-server-config-railway.yaml"
 healthcheckPath = "/health"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
