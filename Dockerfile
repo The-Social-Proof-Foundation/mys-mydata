@@ -18,7 +18,7 @@ EXPOSE 2024
 
 RUN apt-get update && apt-get install -y cmake clang libpq5 ca-certificates libpq-dev postgresql
 
-COPY --from=builder /work/target/release/key-server /opt/key-server/bin/
+COPY --from=builder /work/target/release/key-server /opt/key-server/bin/key-server
 
 # Handle all environment variables
 RUN echo '#!/bin/bash\n\
