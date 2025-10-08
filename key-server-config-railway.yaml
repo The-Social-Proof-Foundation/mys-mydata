@@ -17,6 +17,7 @@
 #
 # Example:
 network: Testnet
+node_url: http://fullnode.testnet.mysocial.network:9000
 
 
 # Server mode. The server can either work in Open/permissionless mode that 

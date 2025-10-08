@@ -11,7 +11,7 @@ restartPolicyMaxRetries = 3
 [environment]
 RUST_LOG = "info"
 RUST_BACKTRACE = "1"
-NODE_URL = "https://fullnode.testnet.mysocial.network:443"
+NODE_URL = "http://fullnode.testnet.mysocial.network:9000"
 NETWORK = "Testnet"
 SERVER_MODE = "Open"
 KEY_SERVER_OBJECT_ID = "0x0000000000000000000000000000000000000000000000000000000000005ea1"
