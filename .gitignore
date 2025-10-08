@@ -82,6 +82,8 @@ light_client.yaml
 docs/content/references/mys-api/mys-graphql/*
 docs/content/references/framework/**
 
+bearer-tokens-railway.yaml
+
 lcov.info
 
 **/build/**

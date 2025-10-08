@@ -1,0 +1,13 @@
+FROM grafana/mimir:latest
+
+# Copy custom configuration
+COPY mimir-railway.yaml /etc/mimir/config.yaml
+
+# Expose ports
+EXPOSE 9009 9095
+
+# Set working directory
+WORKDIR /etc/mimir
+
+# Run Mimir
+CMD ["-config.file=/etc/mimir/config.yaml"]

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS"
+  },
+  "deploy": {
+    "startCommand": "cargo run --bin key-server -- --config=key-server-config.yaml",
+    "healthcheckPath": "/health",
+    "healthcheckTimeout": 300,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 3
+  },
+  "environment": {
+    "RUST_LOG": "info",
+    "RUST_BACKTRACE": "1",
+    "NODE_URL": "http://fullnode.testnet.mysocial.network:9000",
+    "NETWORK": "Testnet",
+    "SERVER_MODE": "Open",
+    "KEY_SERVER_OBJECT_ID": "0x0000000000000000000000000000000000000000000000000000000000005ea1",
+    "METRICS_HOST_PORT": "9184",
+    "METRICS_PUSH_BEARER_TOKEN": "key-server-1-token-$(openssl rand -hex 16)",
+    "METRICS_PUSH_URL": "https://mydata-proxy-production.up.railway.app/publish/metrics",
+    "METRICS_PUSH_INTERVAL_SECS": "10"
+  },
+  "volumes": [
+    {
+      "name": "config",
+      "mountPath": "/app/config"
+    }
+  ],
+  "services": [
+    {
+      "name": "mydata-key-server-1",
+      "source": {
+        "repo": "https://github.com/The-Social-Proof-Foundation/mys-mydata",
+        "branch": "main"
+      },
+      "variables": {
+        "PORT": "8080",
+        "METRICS_PORT": "9184"
+      }
+    }
+  ]
+}

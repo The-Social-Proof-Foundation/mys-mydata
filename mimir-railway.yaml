@@ -1,0 +1,108 @@
+# Mimir configuration optimized for Railway deployment
+multitenancy_enabled: false
+
+server:
+  http_listen_port: 9009
+  http_listen_address: 0.0.0.0
+  grpc_listen_port: 9095
+  grpc_listen_address: 0.0.0.0
+  log_level: info
+
+# Distributor configuration
+distributor:
+  ring:
+    kvstore:
+      store: memberlist
+  pool:
+    health_check_ingesters: true
+
+# Ingester configuration
+ingester:
+  ring:
+    kvstore:
+      store: memberlist
+    replication_factor: 1
+  lifecycler:
+    join_after: 0s
+    num_tokens: 512
+    ring:
+      heartbeat_period: 5s
+      heartbeat_timeout: 1m
+      replication_factor: 1
+
+# Compactor configuration
+compactor:
+  sharding_ring:
+    kvstore:
+      store: memberlist
+  compaction_interval: 15m
+  retention_enabled: true
+  retention_delete_delay: 2h
+  retention_delete_worker_count: 150
+
+# Query configuration
+querier:
+  max_concurrent: 20
+  query_timeout: 300s
+
+# Store gateway configuration
+store_gateway:
+  sharding_ring:
+    kvstore:
+      store: memberlist
+  sync_interval: 5m
+
+# Ruler configuration
+ruler:
+  ring:
+    kvstore:
+      store: memberlist
+  rule_path: /tmp/mimir/rules
+  alertmanager_url: ""
+
+# Blocks storage configuration
+blocks_storage:
+  backend: filesystem
+  filesystem:
+    dir: /tmp/mimir/blocks
+  tsdb:
+    dir: /tmp/mimir/tsdb
+    retention_period: 15d
+    wal_compression_enabled: true
+    head_compaction_interval: 1h
+    head_compaction_concurrency: 1
+    stripe_size: 64
+  bucket_store:
+    sync_interval: 5m
+    index_cache:
+      backend: inmemory
+      max_size_bytes: 250MB
+    chunks_cache:
+      backend: inmemory
+      max_size_bytes: 500MB
+
+# Limits configuration
+limits:
+  max_global_series_per_user: 1000000
+  max_global_series_per_metric: 100000
+  ingestion_rate: 10000
+  ingestion_burst_size: 20000
+  max_query_length: 721h
+  max_query_parallelism: 32
+  max_cache_freshness: 10m
+  max_queriers_per_tenant: 0
+  ruler_max_rules_per_rule_group: 0
+  ruler_max_rule_groups_per_tenant: 0
+
+# Activity tracker configuration
+activity_tracker:
+  filepath: /tmp/mimir/activity.log
+
+# Memberlist configuration
+memberlist:
+  bind_port: 7946
+  advertise_port: 7946
+  join_members: []
+  max_join_retries: 10
+  min_join_backoff: 1s
+  max_join_backoff: 1m
