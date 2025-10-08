@@ -14,6 +14,7 @@ use crypto::ibe::public_key_from_master_key;
 use fastcrypto::ed25519::Ed25519KeyPair;
 use fastcrypto::encoding::Encoding;
 use fastcrypto::serde_helpers::ToFromByteArray;
+use fastcrypto::traits::KeyPair;
 use futures::future::join_all;
 use rand::thread_rng;
 use semver::VersionReq;
@@ -26,7 +27,6 @@ use mys_move_build::BuildConfig;
 use mys_sdk::json::MysJsonValue;
 use mys_sdk::rpc_types::{ObjectChange, MysData, MysObjectDataOptions};
 use mys_types::base_types::{ObjectID, MysAddress};
-use mys_types::crypto::get_key_pair_from_rng;
 use mys_types::move_package::UpgradePolicy;
 use test_cluster::{TestCluster, TestClusterBuilder};
 
@@ -75,7 +75,8 @@ impl MyDataTestCluster {
             registry,
             users: (0..users)
                 .map(|_| {
-                    let (address, keypair) = get_key_pair_from_rng(&mut thread_rng());
+                    let keypair = Ed25519KeyPair::generate(&mut thread_rng());
+                    let address: MysAddress = (&mys_types::crypto::PublicKey::Ed25519((*keypair.public()).into())).into();
                     MyDataUser { address, keypair }
                 })
                 .collect(),

@@ -169,14 +169,15 @@ mod tests {
     use rand::SeedableRng;
     use std::str::FromStr;
     use mys_sdk_types::ProgrammableTransaction as NewProgrammableTransaction;
-    use mys_types::crypto::deterministic_random_account_key;
+    
     #[test]
     fn test_signed_message_regression() {
         let pkg_id = mys_sdk_types::ObjectId::from_str(
             "0xc457b42d48924087ea3f22d35fd2fe9afdf5bdfe38cc51c0f14f3282f6d5",
         )
         .unwrap();
-        let (_, kp): (_, Ed25519KeyPair) = deterministic_random_account_key();
+        let mut rng = StdRng::from_seed([0; 32]);
+        let kp = Ed25519KeyPair::generate(&mut rng);
         let creation_time = 1622548800;
         let ttl_min = 30;
 
@@ -188,7 +189,8 @@ mod tests {
 
     #[test]
     fn test_signed_message_mvr_regression() {
-        let (_, kp): (_, Ed25519KeyPair) = deterministic_random_account_key();
+        let mut rng = StdRng::from_seed([0; 32]);
+        let kp = Ed25519KeyPair::generate(&mut rng);
         let creation_time = 1622548800;
         let ttl_min = 30;
 

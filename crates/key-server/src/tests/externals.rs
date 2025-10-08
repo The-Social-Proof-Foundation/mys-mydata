@@ -7,15 +7,15 @@ use crate::time::current_epoch_time;
 use crate::valid_ptb::ValidPtb;
 use crate::{Certificate, Server};
 use crypto::elgamal;
-use fastcrypto::ed25519::Ed25519Signature;
-use fastcrypto::traits::{KeyPair, Signer};
-use fastcrypto::{ed25519::Ed25519KeyPair, groups::bls12381::G1Element};
+use fastcrypto::groups::bls12381::G1Element;
 use rand::thread_rng;
 use mydata_sdk::signed_message;
 use mydata_sdk::types::{ElGamalPublicKey, ElgamalVerificationKey};
 use shared_crypto::intent::{Intent, IntentMessage, PersonalMessage};
 use mys_types::{
-    base_types::ObjectID, crypto::Signature, signature::GenericSignature,
+    base_types::ObjectID,
+    crypto::{Ed25519KeyPair, Ed25519Signature, KeypairTraits, Signature},
+    signature::GenericSignature,
     transaction::ProgrammableTransaction,
 };
 

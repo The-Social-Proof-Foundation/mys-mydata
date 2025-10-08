@@ -37,7 +37,6 @@ mod tests {
     use mydata_sdk::signed_message;
     use std::str::FromStr;
     use mys_types::base_types::ObjectID;
-    use mys_types::crypto::deterministic_random_account_key;
     use mys_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
     use mys_types::Identifier;
 
@@ -46,7 +45,8 @@ mod tests {
         let pkg_id =
             ObjectID::from_str("0xc457b42d48924087ea3f22d35fd2fe9afdf5bdfe38cc51c0f14f3282f6d5")
                 .unwrap();
-        let (_, kp): (_, Ed25519KeyPair) = deterministic_random_account_key();
+        let mut rng = StdRng::from_seed([0; 32]);
+        let kp = Ed25519KeyPair::generate(&mut rng);
         let creation_time = 1622548800; // Fixed timestamp
         let ttl_min = 30;
 
@@ -63,7 +63,8 @@ mod tests {
 
     #[test]
     fn test_signed_message_mvr_regression() {
-        let (_, kp): (_, Ed25519KeyPair) = deterministic_random_account_key();
+        let mut rng = StdRng::from_seed([0; 32]);
+        let kp = Ed25519KeyPair::generate(&mut rng);
         let creation_time = 1622548800; // Fixed timestamp
         let ttl_min = 30;
 

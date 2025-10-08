@@ -241,7 +241,7 @@ mod tests {
             vec![id_caller],
         );
         // Add a transfer command instead of move call
-        builder.transfer_sui(sender, Some(1));
+        builder.transfer_mys(sender, Some(1));
         let ptb = builder.finish();
         assert_eq!(
             ValidPtb::try_from(ptb).err(),

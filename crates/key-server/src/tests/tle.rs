@@ -14,7 +14,7 @@ use mys_types::{
     base_types::ObjectID,
     programmable_transaction_builder::ProgrammableTransactionBuilder,
     transaction::{ObjectArg, ProgrammableTransaction},
-    Identifier, SUI_CLOCK_OBJECT_ID,
+    Identifier, MYS_CLOCK_OBJECT_ID,
 };
 use tracing_test::traced_test;
 
@@ -256,7 +256,7 @@ fn tle_create_ptb(package_id: ObjectID, time: u64) -> ProgrammableTransaction {
     let id_0 = builder.pure(get_tle_id(0)).unwrap(); // used to test ptb with 2 commands
     let clock = builder
         .obj(ObjectArg::SharedObject {
-            id: SUI_CLOCK_OBJECT_ID,
+            id: MYS_CLOCK_OBJECT_ID,
             initial_shared_version: 1.into(),
             mutable: false,
         })

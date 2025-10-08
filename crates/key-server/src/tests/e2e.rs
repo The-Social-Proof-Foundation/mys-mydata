@@ -19,8 +19,10 @@ use crypto::{
     create_full_id, ibe, mydata_decrypt, mydata_encrypt, EncryptionInput, IBEPublicKeys,
     IBEUserSecretKeys,
 };
+use fastcrypto::ed25519::Ed25519KeyPair;
 use fastcrypto::encoding::Encoding;
 use fastcrypto::serde_helpers::ToFromByteArray;
+use fastcrypto::traits::KeyPair;
 use futures::future::join_all;
 use rand::thread_rng;
 use mydata_sdk::types::{DecryptionKey, FetchKeyResponse};
@@ -30,8 +32,7 @@ use std::collections::HashMap;
 use std::str::FromStr;
 use std::time::Duration;
 use mys_sdk::MysClient;
-use mys_types::base_types::ObjectID;
-use mys_types::crypto::get_key_pair_from_rng;
+use mys_types::base_types::{MysAddress, ObjectID};
 use test_cluster::TestClusterBuilder;
 use tracing_test::traced_test;
 
@@ -286,7 +287,8 @@ async fn test_e2e_permissioned() {
     .await;
 
     // Create test user
-    let (address, user_keypair) = get_key_pair_from_rng(&mut rng);
+    let user_keypair = Ed25519KeyPair::generate(&mut rng);
+    let address: MysAddress = (&mys_types::crypto::PublicKey::Ed25519((*user_keypair.public()).into())).into();
 
     // Create a whitelist for the first package and add the user
     let (whitelist, cap, initial_shared_version) = create_whitelist(&cluster, package_id).await;
@@ -385,7 +387,8 @@ async fn test_e2e_imported_key() {
     .await;
 
     // Create test user
-    let (address, user_keypair) = get_key_pair_from_rng(&mut rng);
+    let user_keypair = Ed25519KeyPair::generate(&mut rng);
+    let address: MysAddress = (&mys_types::crypto::PublicKey::Ed25519((*user_keypair.public()).into())).into();
 
     // Create a whitelist for the first package and add the user
     let (whitelist, cap, initial_shared_version) = create_whitelist(&cluster, package_id).await;

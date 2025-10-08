@@ -134,14 +134,11 @@ mod tests {
     use crate::mys_rpc_client::MysRpcClient;
     use crate::types::Network;
     use crate::InternalError;
-    use fastcrypto::ed25519::Ed25519KeyPair;
-    use fastcrypto::secp256k1::Secp256k1KeyPair;
-    use fastcrypto::secp256r1::Secp256r1KeyPair;
     use shared_crypto::intent::{Intent, IntentMessage, PersonalMessage};
     use std::str::FromStr;
     use mys_sdk::types::crypto::{get_key_pair, Signature};
     use mys_sdk::types::signature::GenericSignature;
-    use mys_sdk::verify_personal_message_signature::verify_personal_message_signature;
+    use crate::server::verify_personal_message_signature;
     use mys_sdk::MysClientBuilder;
     use mys_types::base_types::ObjectID;
 
@@ -200,7 +197,7 @@ mod tests {
 
         // simple sigs
         {
-            let (addr, sk): (_, Ed25519KeyPair) = get_key_pair();
+            let (addr, sk) = get_key_pair();
             let sig = GenericSignature::Signature(Signature::new_secure(&msg_with_intent, &sk));
             assert!(verify_personal_message_signature(
                 sig.clone(),
@@ -211,7 +208,7 @@ mod tests {
             .await
             .is_ok());
 
-            let (wrong_addr, _): (_, Ed25519KeyPair) = get_key_pair();
+            let (wrong_addr, _) = get_key_pair();
             assert!(verify_personal_message_signature(
                 sig.clone(),
                 &personal_msg.message,
@@ -231,7 +228,7 @@ mod tests {
             );
         }
         {
-            let (addr, sk): (_, Secp256k1KeyPair) = get_key_pair();
+            let (addr, sk) = get_key_pair();
             let sig = GenericSignature::Signature(Signature::new_secure(&msg_with_intent, &sk));
             assert!(verify_personal_message_signature(
                 sig.clone(),
@@ -241,7 +238,7 @@ mod tests {
             )
             .await
             .is_ok());
-            let (wrong_addr, _): (_, Secp256k1KeyPair) = get_key_pair();
+            let (wrong_addr, _) = get_key_pair();
             assert!(verify_personal_message_signature(
                 sig.clone(),
                 &personal_msg.message,
@@ -260,7 +257,7 @@ mod tests {
             );
         }
         {
-            let (addr, sk): (_, Secp256r1KeyPair) = get_key_pair();
+            let (addr, sk) = get_key_pair();
             let sig = GenericSignature::Signature(Signature::new_secure(&msg_with_intent, &sk));
             assert!(verify_personal_message_signature(
                 sig.clone(),
@@ -271,7 +268,7 @@ mod tests {
             .await
             .is_ok());
 
-            let (wrong_addr, _): (_, Secp256r1KeyPair) = get_key_pair();
+            let (wrong_addr, _) = get_key_pair();
             assert!(verify_personal_message_signature(
                 sig.clone(),
                 &personal_msg.message,
