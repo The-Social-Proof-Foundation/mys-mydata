@@ -2,7 +2,7 @@
 builder = "NIXPACKS"
 
 [deploy]
-startCommand = "cargo run --bin key-server"
+startCommand = "cargo run --release --bin key-server"
 healthcheckPath = "/v1/service"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
@@ -11,7 +11,6 @@ restartPolicyMaxRetries = 3
 [environment]
 RUST_LOG = "info"
 RUST_BACKTRACE = "1"
-CONFIG_PATH = "/app/config/key-server-config.yaml"
 NODE_URL = "http://fullnode.testnet.mysocial.network:9000"
 NETWORK = "Custom"
 SERVER_MODE = "Open"
