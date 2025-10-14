@@ -11,6 +11,7 @@ restartPolicyMaxRetries = 3
 [environment]
 RUST_LOG = "info"
 RUST_BACKTRACE = "1"
+CONFIG_PATH = "/app/config/key-server-config.yaml"
 NODE_URL = "http://fullnode.testnet.mysocial.network:9000"
 NETWORK = "Custom"
 SERVER_MODE = "Open"
