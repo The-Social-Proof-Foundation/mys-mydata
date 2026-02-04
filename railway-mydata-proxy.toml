@@ -1,6 +1,6 @@
 [build]
 builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile.mydata-proxy"
+dockerfilePath = "./Dockerfile.mydata-proxy"
 
 [deploy]
 startCommand = "/opt/mydata-proxy/bin/mydata-proxy"
