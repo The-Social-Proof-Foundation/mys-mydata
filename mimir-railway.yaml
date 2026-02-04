@@ -23,7 +23,6 @@ ingester:
       store: memberlist
     replication_factor: 1
     num_tokens: 512
-    final_sleep: 0s
 
 # Compactor configuration
 compactor:

@@ -3,7 +3,7 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "cargo run --release --bin key-server"
+startCommand = "/opt/key-server/bin/key-server"
 healthcheckPath = "/v1/service"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
