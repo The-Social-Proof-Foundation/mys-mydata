@@ -1,8 +1,8 @@
 [build]
-builder = "NIXPACKS"
+builder = "RAILPACK"
 
 [deploy]
-startCommand = "cargo run --bin mydata-proxy"
+startCommand = "mydata-proxy"
 healthcheckPath = "/pod_health"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
