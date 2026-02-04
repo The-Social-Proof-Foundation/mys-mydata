@@ -25,7 +25,7 @@ move-core-types.workspace = true
 mvr_types = { git = "https://github.com/MystenLabs/mvr", branch = "main", package = "mvr-types" }
 
 tokio = { version = "1.46.1", features = ["full"] }
-axum = { version = "0.7", features = ["macros"] }
+axum.workspace = true
 tower-http = { version = "0.5", features = ["cors", "limit"] }
 crypto = { path = "../crypto" }
 tap = "1.0.1"

@@ -21,6 +21,22 @@ hex = "0.4"
 clap = { version = "4.5.40", features = ["derive"] }
 tracing = "0.1.37"
 serde_with = "3.13.0"
+axum = { version = "0.8", default-features = false, features = [
+    "macros",
+    "tokio",
+    "http1",
+    "http2",
+    "json",
+    "matched-path",
+    "original-uri",
+    "form",
+    "query",
+    "ws",
+] }
+axum-extra = { version = "0.12", features = ["typed-header"] }
+axum-server = { version = "0.8.0", default-features = false, features = [
+    "tls-rustls",
+] }
 
 # MySocial dependencies
 mys_types = { git = "https://github.com/The-Social-Proof-Foundation/mys-core", branch = "main", package = "mys-types"}

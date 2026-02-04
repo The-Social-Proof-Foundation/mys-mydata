@@ -3,7 +3,6 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile.mydata-proxy"
 
 [deploy]
-startCommand = "/opt/mydata-proxy/bin/mydata-proxy"
 healthcheckPath = "/pod_health"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
