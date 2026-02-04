@@ -22,10 +22,8 @@ ingester:
     kvstore:
       store: memberlist
     replication_factor: 1
-  join_after: 0s
-  num_tokens: 512
-  heartbeat_period: 5s
-  heartbeat_timeout: 1m
+    num_tokens: 512
+    final_sleep: 0s
 
 # Compactor configuration
 compactor:
