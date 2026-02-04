@@ -1,8 +1,9 @@
 [build]
-builder = "RAILPACK"
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile.mydata-proxy"
 
 [deploy]
-startCommand = "mydata-proxy"
+startCommand = "/opt/mydata-proxy/bin/mydata-proxy"
 healthcheckPath = "/pod_health"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
