@@ -9,8 +9,8 @@ Use the relevant package ID `<PACKAGE_ID>` to register your key server on the My
 
 | <NETWORK> | <PACKAGE_ID> | 
 | -------- | ------- |
-| Testnet | 0x927a54e9ae803f82ebf480136a9bcff45101ccbe28b13f433c89f5181069d682 |
-| Mainnet | 0xa212c4c6c7183b911d0be8768f4cb1df7a383025b5d0ba0c014009f0f30f5f8d | 
+| Testnet | 0x5ea1 |
+| Mainnet | 0x5ea1 | 
 
 A MyData key server can operate in one of two modes - `Open` or `Permissioned`:
 
@@ -37,9 +37,9 @@ To make the key server discoverable by MyData clients, register it on-chain.
 Call the `create_and_transfer_v1` function from the `mydata::key_server` module like following:
 
 ```shell
-$ mys client switch --env <NETWORK>
-$ mys client active-address # fund this if necessary
-$ mys client call --function create_and_transfer_v1 --module key_server --package <PACKAGE_ID> --args <YOUR_SERVER_NAME> https://<YOUR_URL> 0 <MASTER_PUBKEY>
+$ myso client switch --env <NETWORK>
+$ myso client active-address # fund this if necessary
+$ myso client call --function create_and_transfer_v1 --module key_server --package <PACKAGE_ID> --args <YOUR_SERVER_NAME> https://<YOUR_URL> 0 <MASTER_PUBKEY>
 
 # outputs object of type key_server::KeyServer <KEY_SERVER_OBJECT_ID>
 ```

@@ -1,5 +1,6 @@
 [build]
-builder = "NIXPACKS"
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
 
 [deploy]
 startCommand = "cargo run --release --bin key-server"
@@ -11,14 +12,8 @@ restartPolicyMaxRetries = 3
 [environment]
 RUST_LOG = "info"
 RUST_BACKTRACE = "1"
-NODE_URL = "http://fullnode.testnet.mysocial.network:9000"
-NETWORK = "Custom"
-SERVER_MODE = "Open"
-KEY_SERVER_OBJECT_ID = "0x0000000000000000000000000000000000000000000000000000000000005ea1"
-METRICS_HOST_PORT = "9184"
-METRICS_PUSH_URL = "https://mydata-proxy-testnet.up.railway.app/publish/metrics"
-METRICS_PUSH_INTERVAL_SECS = "10"
-MASTER_KEY = "0x25e578903be963387a68e65f6ac0192536def94cd992805386497b8c27cee4ca"
+CONFIG_PATH = "/app/config/key-server-config-railway.yaml"
+MASTER_KEY = "0x9626290d5e30dea1e1d86a27086e64d4dc2955adbce4b6c54d6cd4fba015ac9c"
 
 [[volumes]]
 name = "config"

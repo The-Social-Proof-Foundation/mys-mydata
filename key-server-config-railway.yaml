@@ -30,7 +30,7 @@ network: !Custom
 #
 # Example:
 server_mode: !Open
-  key_server_object_id: '0x00000000000000000000000000000000000000000000000000000000000005ea1
+  key_server_object_id: '0x0000000000000000000000000000000000000000000000000000000000005ea1'
 
 #### Optional advanced configurations ####
 #
